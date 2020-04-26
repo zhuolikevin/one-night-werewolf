@@ -11,7 +11,7 @@
 	},
 	"appid": "wx81f600a6b06d5c72",
 	"projectname": "one-night-werewolf",
-	"libVersion": "2.8.1",
+	"libVersion": "2.11.0",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
 	"cloudfunctionTemplateRoot": "cloudfunctionTemplate",

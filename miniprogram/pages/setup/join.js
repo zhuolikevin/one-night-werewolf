@@ -74,12 +74,13 @@ Page({
 
   onJoinRoom: function() {
     const db = wx.cloud.database();
-    db.collection('rooms').where({ roomNumber: this.data.roomNumber }).update({
+    const _ = db.command;
+    db.collection('rooms').where({ roomNumber: parseInt(this.data.roomNumber) }).update({
       data: {
         players: _.push(app.globalData.openid),
       },
       success: res => {
-        console.log(res);
+        console.log("success: ", res);
       }
     });
   }
