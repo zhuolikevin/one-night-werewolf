@@ -9,9 +9,11 @@
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
     </block>
     <block wx:if="{{logged}}">
+      <text>\n</text>
       <navigator url="../setup/create" open-type="navigate">
         <button type="default">创建房间</button>
       </navigator>
+      <text>\n</text>
       <navigator url="../setup/join" open-type="navigate">
         <button type="default">加入房间</button>
       </navigator>

@@ -45,7 +45,6 @@ Page({
       })
     }
     this.getOpenId();
-    this.registerPlayer();
   },
 
   getOpenId: function() {
@@ -58,6 +57,7 @@ Page({
         wx.showToast({
           title: '登陆成功',
         });
+        this.registerPlayer()
       },
       fail: err => {
         console.error('[云函数] [login] 调用失败', err)
@@ -68,7 +68,7 @@ Page({
     })
   },
 
-  registerPlayer: () => {
+  registerPlayer: function() { 
     const _this = this;
     wx.cloud.callFunction({
       name: 'registerPlayer',

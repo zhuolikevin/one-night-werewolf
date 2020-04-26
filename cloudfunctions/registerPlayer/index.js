@@ -9,14 +9,12 @@ const db = cloud.database();
 // 云函数入口函数
 exports.main = async (event, context) => {
   const { openId, avatarUrl, nickName } = event.userInfo;
-  console.log("event: ", event);
-  console.log("context: ", context);
 
   const players = await db.collection('players').where({ openId }).get();
 
   console.log("players: ", players);
 
-  if (players.length === 0) {
+  if (players.data.length === 0) {
     return db.collection('players').add({
       data: { openId, avatarUrl, nickName }
     });
