@@ -1,18 +1,29 @@
-// pages/onw/onw.js
+// pages/room/waiting.js
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-
+    roomId: null,
+    roomNumber: null,
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    const _this = this;
+    const db = wx.cloud.database();
+    db.collection('rooms').doc(options.roomId).get({
+      success: res => {
+        const { roomNumber, players } = res.data;
+        _this.setData({
+          roomId: options.roomId,
+          roomNumber: roomNumber,
+        });
+      }
+    });
   },
 
   /**

@@ -1,0 +1,4 @@
+<!--pages/setup/join.wxml-->
+<text>请输入房间号</text>
+<input bindinput="bindKeyInput" value="{{roomNumber}}" />
+<button bindtap="onJoinRoom">加入房间</button>

@@ -1,0 +1,3 @@
+<!--pages/room/waiting.wxml-->
+<text>房间号:</text>
+<text>{{roomNumber}}</text>

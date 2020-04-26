@@ -1,0 +1,4 @@
+<!--pages/onw/create/create.wxml-->
+<text>游戏人数</text>
+<input bindinput="bindKeyInput" value="{{totalPlayer}}" />
+<button bindtap="onCreateRoom">确定创建</button>
