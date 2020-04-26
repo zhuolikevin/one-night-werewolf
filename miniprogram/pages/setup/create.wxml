@@ -2,7 +2,7 @@
 
 <text>\n</text>
 <i-panel title="游戏人数">
-  <i-input value="{{totalPlayer}}" autofocus maxlength="-1"/>
+  <i-input value="{{totalPlayer}}" bindchange="handleInputChange" autofocus maxlength="-1"/>
 </i-panel>
 
 <i-panel title="普通狼人 wereWolf">

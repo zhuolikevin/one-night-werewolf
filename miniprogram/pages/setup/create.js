@@ -200,8 +200,8 @@ Page({
 
     var totalRoles = this.calculateTotalRoles()
 
-    if (totalRoles != totalPlayers) {
-      this.handleAlert("已选角色 " + totalRoles + ", 需要角色" + totalPlayers, 'warning')
+    if (totalRoles != totalPlayers + 3) {
+      this.handleAlert("已选角色 " + totalRoles + ", 需要角色" + (totalPlayers + 3), 'warning')
       return
     }
 

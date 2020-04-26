@@ -1,5 +1,6 @@
 // pages/setup/join.js
 const app = getApp();
+const { $Message } = require('../../dist/base/index');
 
 Page({
 
@@ -66,20 +67,23 @@ Page({
 
   },
 
-  bindKeyInput: function (e) {
+  handleInputChange: function (e) {
     this.setData({
-      roomNumber: e.detail.value
+      roomNumber: e.detail.detail.value
+    })
+  },
+
+  handleAlert: function (content, type) {
+    $Message({
+      content: content,
+      type: type
     });
   },
 
   onJoinRoom: function() {
-
     const parsedRoomNumber = parseInt(this.data.roomNumber);
     if (isNaN(parsedRoomNumber) || parsedRoomNumber < 1000 || parsedRoomNumber > 9999) {
-      wx.showToast({
-        title: '房间号为4位数字',
-        icon: 'none'
-      });
+      this.handleAlert("房间号为4位数字", 'warning')
       return;
     }
     wx.cloud.callFunction({
@@ -90,9 +94,12 @@ Page({
       },
       success: res => {
         const { success, message } = res.result
-        wx.showToast({
-          title: message,
-          icon: success ? 'success' : 'none'
+        if (!success) {
+          this.handleAlert("房间不存在", 'warning')
+          return
+        }
+        wx.redirectTo({
+          url: '../room/waiting?roomId=' + res._id,
         });
       },
       fail: err => {
