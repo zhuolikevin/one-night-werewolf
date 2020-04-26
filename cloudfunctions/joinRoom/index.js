@@ -30,7 +30,8 @@ exports.main = async (event, context) => {
   if (players.includes(openId)) {
     // player already in room
     return {
-      success: false,
+      room: rooms[0],
+      success: true,
       message: `您已在房间中`,
     };
   }
@@ -40,7 +41,8 @@ exports.main = async (event, context) => {
       players: db.command.push(openId),
     },
   }).then(res => ({
+    room: res,
     success: true,
-    message: '加入房间成功',
+    message: '进入房间成功',
   }));
 }
