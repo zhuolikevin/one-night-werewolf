@@ -1,4 +1,95 @@
 <!--pages/onw/create/create.wxml-->
-<text>游戏人数</text>
-<input bindinput="bindKeyInput" value="{{totalPlayer}}" />
-<button bindtap="onCreateRoom">确定创建</button>
+
+<text>\n</text>
+<i-panel title="游戏人数">
+  <i-input value="{{totalPlayer}}" autofocus maxlength="-1"/>
+</i-panel>
+
+<i-panel title="普通狼人 wereWolf">
+    <view style="padding: 16px">
+        <i-input-number value="{{wereWolf}}" min="0" max="100" bindchange="handleChangeWereWolf" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="头狼 alphaWolf">
+    <view style="padding: 16px">
+        <i-input-number value="{{alphaWolf}}" min="0" max="100" bindchange="handleChangeAlphaWolf" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="爪牙 minion">
+    <view style="padding: 16px">
+        <i-input-number value="{{minion}}" min="0" max="100" bindchange="handleChangeMinion" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="狼先知 mysticWolf">
+    <view style="padding: 16px">
+        <i-input-number value="{{mysticWolf}}" min="0" max="100" bindchange="handleChangeMysticWolf" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="预言家 seer">
+    <view style="padding: 16px">
+        <i-input-number value="{{seer}}" min="0" max="100" bindchange="handleChangeSeer" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="学徒预言家 apprenticeSeer">
+    <view style="padding: 16px">
+        <i-input-number value="{{apprenticeSeer}}" min="0" max="100" bindchange="handleChangeApprenticeSeer" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="女巫 witch">
+    <view style="padding: 16px">
+        <i-input-number value="{{witch}}" min="0" max="100" bindchange="handleChangeWitch" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="揭示者 revealer">
+    <view style="padding: 16px">
+        <i-input-number value="{{revealer}}" min="0" max="100" bindchange="handleChangeRevealer" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="强盗 robber">
+    <view style="padding: 16px">
+        <i-input-number value="{{robber}}" min="0" max="100" bindchange="handleChangeRobber" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="捣蛋鬼 troublemaker">
+    <view style="padding: 16px">
+        <i-input-number value="{{troublemaker}}" min="0" max="100" bindchange="handleChangeTroublemaker" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="失眠者 insomniac">
+    <view style="padding: 16px">
+        <i-input-number value="{{insomniac}}" min="0" max="100" bindchange="handleChangeInsomniac" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="酒鬼 drunk">
+    <view style="padding: 16px">
+        <i-input-number value="{{drunk}}" min="0" max="100" bindchange="handleChangeDrunk" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="守夜人 mason">
+    <view style="padding: 16px">
+        <i-input-number value="{{mason}}" min="0" max="100" bindchange="handleChangeMason" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<i-panel title="村民 villager">
+    <view style="padding: 16px">
+        <i-input-number value="{{villager}}" min="0" max="100" bindchange="handleChangeVillager" maxlength="-1"/>
+    </view>
+</i-panel>
+
+<text>\n</text>
+<button type="default" bindtap="onCreateRoom">确定创建</button>
+
+<i-message id="message" />

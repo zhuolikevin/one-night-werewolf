@@ -1,5 +1,6 @@
 // pages/onw/create/create.js
 const app = getApp();
+const { $Message } = require('../../dist/base/index');
 
 Page({
 
@@ -8,6 +9,20 @@ Page({
    */
   data: {
     totalPlayer: 4,
+    wereWolf: 0,
+    alphaWolf: 0,
+    minion: 0,
+    mysticWolf: 0,
+    seer: 0,
+    apprenticeSeer: 0,
+    witch: 0,
+    revealer: 0,
+    robber: 0,
+    troublemaker: 0,
+    insomniac: 0,
+    drunk: 0,
+    mason: 0,
+    villager: 0
   },
 
   /**
@@ -66,13 +81,130 @@ Page({
 
   },
 
-  bindKeyInput: function (e) {
+  handleInputChange: function (e) {
     this.setData({
       totalPlayer: e.detail.value
     })
   },
 
+  handleChangeWereWolf: function (e) {
+    this.setData({
+      wereWolf: e.detail.value
+    })
+  },
+
+  handleChangeAlphaWolf: function (e) {
+    this.setData({
+      alphaWolf: e.detail.value
+    })
+  },
+
+  handleChangeMinion: function (e) {
+    this.setData({
+      minion: e.detail.value
+    })
+  },
+
+  handleChangeMysticWolf: function (e) {
+    this.setData({
+      mysticWolf: e.detail.value
+    })
+  },
+
+  handleChangeSeer: function (e) {
+    this.setData({
+      seer: e.detail.value
+    })
+  },
+
+  handleChangeApprenticeSeer: function (e) {
+    this.setData({
+      apprenticeSeer: e.detail.value
+    })
+  },
+
+  handleChangeWitch: function (e) {
+    console.log(e)
+    this.setData({
+      witch: e.detail.value
+    })
+  },
+
+  handleChangeRevealer: function (e) {
+    this.setData({
+      revealer: e.detail.value
+    })
+  },
+
+  handleChangeRobber: function (e) {
+    this.setData({
+      robber: e.detail.value
+    })
+  },
+
+  handleChangeTroublemaker: function (e) {
+    this.setData({
+      troublemaker: e.detail.value
+    })
+  },
+
+  handleChangeInsomniac: function (e) {
+    this.setData({
+      insomniac: e.detail.value
+    })
+  },
+
+  handleChangeDrunk: function (e) {
+    this.setData({
+      drunk: e.detail.value
+    })
+  },
+
+  handleChangeMason: function (e) {
+    this.setData({
+      mason: e.detail.value
+    })
+  },
+
+  handleChangeVillager: function (e) {
+    this.setData({
+      villager: e.detail.value
+    })
+  },
+
+  handleAlert: function(content, type) {
+    $Message({
+      content: content,
+      type: type
+    });
+  },
+
+  calculateTotalRoles: function() {
+    const {wereWolf, alphaWolf, minion, mysticWolf, seer, 
+    apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, 
+    drunk, mason, villager} = this.data
+    console.log(mason)
+    return wereWolf + alphaWolf + minion + mysticWolf + seer + 
+      apprenticeSeer + witch + revealer + robber + troublemaker + insomniac + 
+      drunk + mason + villager;
+  },
+
   onCreateRoom: function() {
+
+    var totalPlayers = this.data.totalPlayer
+
+    if (isNaN(totalPlayers) || totalPlayers < 3 || totalPlayers >= 20) {
+      this.handleAlert("请输入合法房间人数（数字3到20）", 'warning')
+      return
+    }
+
+    var totalRoles = this.calculateTotalRoles()
+
+    if (totalRoles != totalPlayers) {
+      this.handleAlert("已选角色 " + totalRoles + ", 需要角色" + totalPlayers, 'warning')
+      return
+    }
+
     const db = wx.cloud.database();
     db.collection('rooms').add({
       data: {
