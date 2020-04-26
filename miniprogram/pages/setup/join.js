@@ -73,22 +73,30 @@ Page({
   },
 
   onJoinRoom: function() {
-    const db = wx.cloud.database();
-    const _ = db.command;
-    console.log(parseInt(this.data.roomNumber))
-    console.log(app.globalData.openid)
-    db.collection('rooms').where({ roomNumber: parseInt(this.data.roomNumber) })
-    .get({
-      success: res => {
-        console.log(res);
-      }
-    })
-    .update({
+
+    const parsedRoomNumber = parseInt(this.data.roomNumber);
+    if (isNaN(parsedRoomNumber) || parsedRoomNumber < 1000 || parsedRoomNumber > 9999) {
+      wx.showToast({
+        title: '房间号为4位数字',
+        icon: 'none'
+      });
+      return;
+    }
+    wx.cloud.callFunction({
+      name: 'joinRoom',
       data: {
-        players: _.push(app.globalData.openid),
+        roomNumber: this.data.roomNumber,
+        openId: app.globalData.openid,
       },
       success: res => {
-        console.log("success: ", res);
+        const { success, message } = res.result
+        wx.showToast({
+          title: message,
+          icon: success ? 'success' : 'none'
+        });
+      },
+      fail: err => {
+        console.log("err: ", err);
       }
     });
   }
