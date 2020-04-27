@@ -82,8 +82,15 @@ Page({
   /**
    * 准备
    */
-  onPrepare: function() {
-    console.log("Now prepare")
+  onSetReady: function() {
+    console.log("Now ready");
+    wx.cloud.callFunction({
+      name: 'setReady',
+      data: { roomId: this.data.room._id },
+      success: res => {
+        console.log(res);
+      }
+    })
   },
 
   /**

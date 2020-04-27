@@ -44,7 +44,7 @@ exports.main = async (event, context) => {
       players: db.command.push({
         openId,
         isRoomMaster: false,
-        isPrepared: false,
+        isReady: false,
         seatNumber,
       }),
     },

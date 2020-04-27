@@ -19,7 +19,7 @@ exports.main = async (event, context) => {
       players: [{
         openId: roomMasterOpenId,
         isRoomMaster: true,
-        isPrepared: true, // room master is auto prepared
+        isReady: true, // room master is auto ready
         seatNumber,
       }],
       // TODO: add role setting from request

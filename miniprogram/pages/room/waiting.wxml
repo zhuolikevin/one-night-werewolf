@@ -13,8 +13,8 @@
 </i-grid>
 
 <text>\n</text>
-<button type="default" bindtap="onStart" hidden="{{app.globalData.openid != room._openid}}">开始游戏</button>
-<button type="default" bindtap="onPrepare" hidden="{{app.globalData.openid == room._openid}}">准备</button>
+<button type="default" bindtap="onSetReady" hidden="{{app.globalData.openid != room._openid}}">准备</button>
+<button type="default" bindtap="onStart" hidden="{{app.globalData.openid == room._openid}}">开始游戏</button>
 
 
 
