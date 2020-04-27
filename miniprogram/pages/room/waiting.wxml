@@ -5,7 +5,7 @@
     <i-row>
       <view wx:for="{{seats[index]}}" wx:for-index="index2" wx:for-item="item">
         <i-grid-item>
-          <text>{{seats[index][index2].name}}</text>
+          <text>{{seats[index][index2].seatNumber}}</text>
         </i-grid-item>
       </view>
     </i-row> 

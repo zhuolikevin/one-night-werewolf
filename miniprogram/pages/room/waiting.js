@@ -25,8 +25,6 @@ Page({
         _this.setData({
           room: res.data,
         });
-        console.log(res.data._openid)
-        console.log(app.globalData.openid)
         this.calculateSeats(res.data.players)
       }
     });
@@ -99,15 +97,6 @@ Page({
    * 分配座位
    */
   calculateSeats: function(players) {
-
-    // Only for test
-    players = []
-    for (var i = 0; i < 10; i++) {
-      players[i] = {
-        seatNumber: i,
-        name: i
-      }
-    }
 
     var rows = Math.ceil(players.length / 3);
 
