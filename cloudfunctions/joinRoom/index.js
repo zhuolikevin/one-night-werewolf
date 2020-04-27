@@ -20,20 +20,20 @@ exports.main = async (event, context) => {
 
   const { totalPlayer, players, _id: roomId } = rooms[0];
 
-  if (totalPlayer === players.length) {
-    // room is full
-    return {
-      success: false,
-      message: `房间 ${roomNumber} 人数已满`,
-    };
-  }
-
-  if (players.includes(openId)) {
+  if (players.map(player => player.openId).includes(openId)) {
     // player already in room
     return {
       room: rooms[0],
       success: true,
       message: `您已在房间中`,
+    };
+  }
+
+  if (totalPlayer === players.length) {
+    // room is full
+    return {
+      success: false,
+      message: `房间 ${roomNumber} 人数已满`,
     };
   }
 
