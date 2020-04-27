@@ -1,3 +1,20 @@
 <!--pages/room/waiting.wxml-->
-<text>房间号:</text>
-<text>{{roomNumber}}</text>
+
+<i-grid>
+  <view wx:for="{{seats}}" wx:for-index="index" wx:for-item="item">
+    <i-row>
+      <view wx:for="{{seats[index]}}" wx:for-index="index2" wx:for-item="item">
+        <i-grid-item>
+          <text>{{seats[index][index2].name}}</text>
+        </i-grid-item>
+      </view>
+    </i-row> 
+  </view>
+</i-grid>
+
+<text>\n</text>
+<button type="default" bindtap="onStart" hidden="{{app.globalData.openid != room._openid}}">开始游戏</button>
+<button type="default" bindtap="onPrepare" hidden="{{app.globalData.openid == room._openid}}">准备</button>
+
+
+

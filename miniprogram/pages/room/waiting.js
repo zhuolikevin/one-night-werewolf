@@ -1,13 +1,18 @@
 // pages/room/waiting.js
+
+const app = getApp();
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    roomId: null,
-    roomNumber: null,
+    room: {},
+    seats: [],
+    start: false,
   },
+  
 
   /**
    * 生命周期函数--监听页面加载
@@ -17,11 +22,12 @@ Page({
     const db = wx.cloud.database();
     db.collection('rooms').doc(options.roomId).get({
       success: res => {
-        const { roomNumber, players } = res.data;
         _this.setData({
-          roomId: options.roomId,
-          roomNumber: roomNumber,
+          room: res.data,
         });
+        console.log(res.data._openid)
+        console.log(app.globalData.openid)
+        this.calculateSeats(res.data.players)
       }
     });
   },
@@ -72,6 +78,52 @@ Page({
    * 用户点击右上角分享
    */
   onShareAppMessage: function () {
+
+  },
+
+  /**
+   * 准备
+   */
+  onPrepare: function() {
+    console.log("Now prepare")
+  },
+
+  /**
+   * 开始游戏
+   */
+  onStart: function() {
+    console.log("Now start")
+  },
+
+  /**
+   * 分配座位
+   */
+  calculateSeats: function(players) {
+
+    // Only for test
+    players = []
+    for (var i = 0; i < 10; i++) {
+      players[i] = {
+        seatNumber: i,
+        name: i
+      }
+    }
+
+    var rows = Math.ceil(players.length / 3);
+
+    var seats = new Array(rows);   //表格有10行
+    for (var i = 0; i < seats.length; i++) {
+      seats[i] = new Array(3);    //每行有10列
+    }
+
+    for (var i = 0; i < players.length; i++) {
+      var seatNumber = players[i].seatNumber 
+      seats[Math.floor(seatNumber / 3)][seatNumber % 3] = players[i]
+    }
+
+    this.setData({
+      seats: seats,
+    });
 
   }
 })

@@ -92,13 +92,13 @@ Page({
         roomNumber: this.data.roomNumber,
       },
       success: res => {
-        const { success, message } = res.result
+        const { success, message, room } = res.result
         if (!success) {
-          this.handleAlert("房间不存在", 'warning')
+          this.handleAlert(message, 'warning')
           return
         }
         wx.redirectTo({
-          url: '../room/waiting?roomId=' + res._id,
+          url: '../room/waiting?roomId=' + room._id,
         });
       },
       fail: err => {
