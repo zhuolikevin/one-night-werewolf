@@ -6,7 +6,8 @@ cloud.init({
 
 const db = cloud.database();
 exports.main = async (event, context) => {
-  const { roomNumber, openId } = event;
+  const { roomNumber, userInfo } = event;
+  const { openId } = userInfo;
   const { data: rooms } = await db.collection('rooms').where({ roomNumber: parseInt(roomNumber) }).get();
 
   if (rooms.length === 0) {
@@ -36,13 +37,26 @@ exports.main = async (event, context) => {
     };
   }
 
+  const seatedNumbers = players.map(player => player.seatNumber);
+  const seatNumber = generateSeatNumber(totalPlayer, seatedNumbers);
   return db.collection('rooms').doc(roomId).update({
     data: {
-      players: db.command.push(openId),
+      players: db.command.push({
+        openId,
+        isRoomMaster: false,
+        isPrepared: false,
+        seatNumber,
+      }),
     },
   }).then(res => ({
     room: res,
     success: true,
     message: '进入房间成功',
   }));
+}
+
+function generateSeatNumber(totalPlayer, seatedNumbers) {
+  const allSeatNumbers = [...Array(totalPlayer).keys()];
+  const candidateSeatNumbers = allSeatNumbers.filter(x => !seatedNumbers.includes(x));
+  return candidateSeatNumbers[Math.floor(Math.random() * candidateSeatNumbers.length)];
 }
