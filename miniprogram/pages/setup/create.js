@@ -205,33 +205,43 @@ Page({
       return
     }
 
-    const db = wx.cloud.database();
-    db.collection('rooms').add({
+    wx.cloud.callFunction({
+      name: 'createRoom',
       data: {
         totalPlayer: this.data.totalPlayer,
-        roomNumber: Math.floor(1000 + Math.random() * 9000),
-        players: [app.globalData.openid],
       },
       success: res => {
-        wx.showToast({
-          title: '创建房间成功',
-          icon: 'success',
-          duration: 1000,
-          success: () => {
-            setTimeout(() => {
-              wx.redirectTo({
-                url: '../room/waiting?roomId=' + res._id,
-              });
-            }, 1000);
-          }
-        });
-      },
-      fail: err => {
-        wx.showToast({
-          icon: 'none',
-          title: '创建房间失败'
-        });
+        console.log("success: ", res);
       }
-    })
+    });
+
+    // const db = wx.cloud.database();
+    // db.collection('rooms').add({
+    //   data: {
+    //     totalPlayer: this.data.totalPlayer,
+    //     roomNumber: Math.floor(1000 + Math.random() * 9000),
+    //     players: [app.globalData.openid],
+    //   },
+    //   success: res => {
+    //     wx.showToast({
+    //       title: '创建房间成功',
+    //       icon: 'success',
+    //       duration: 1000,
+    //       success: () => {
+    //         setTimeout(() => {
+    //           wx.redirectTo({
+    //             url: '../room/waiting?roomId=' + res._id,
+    //           });
+    //         }, 1000);
+    //       }
+    //     });
+    //   },
+    //   fail: err => {
+    //     wx.showToast({
+    //       icon: 'none',
+    //       title: '创建房间失败'
+    //     });
+    //   }
+    // })
   }
 })
