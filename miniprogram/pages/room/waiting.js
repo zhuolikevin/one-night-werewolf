@@ -27,8 +27,8 @@ Page({
   onLoad: function (options) {
 
     // For test
-    options.roomId = "b7ef76b45ea6386900459d9531131c92"
-    app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
+    // options.roomId = "b7ef76b45ea6386900459d9531131c92"
+    // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
 
     this.setData({
       me: app.globalData.openid
@@ -37,19 +37,11 @@ Page({
     const _this = this;
     const db = wx.cloud.database();
 
-    wx.cloud.callFunction({
-      name: 'waitingPlayersInfo',
-      data: {
-        roomId: options.roomId
-      },
+    db.collection('rooms').doc(options.roomId).get({
       success: res => {
-        _this.setData({
-          room: res.result.room,
-        });
-        this.calculateSeats(res.result.playersReturn, res.result.room.totalPlayer)
-      },
-      fail: err => {
-        console.error('[云函数] [login] 调用失败', err)
+        const room = res.data;
+        _this.setData({ room });
+        this.calculateSeats(room.players, room.totalPlayer);
       }
     });
 
