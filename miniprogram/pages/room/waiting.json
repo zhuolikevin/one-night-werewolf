@@ -5,6 +5,7 @@
     "i-grid-icon": "../../dist/grid-icon/index",
     "i-grid-label": "../../dist/grid-label/index",
     "i-icon": "../../dist/icon/index",
-    "i-row": "../../dist/row/index"
+    "i-row": "../../dist/row/index",
+    "i-avatar": "../../dist/avatar/index"
   }
 }

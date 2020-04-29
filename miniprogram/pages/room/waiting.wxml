@@ -1,20 +1,28 @@
 <!--pages/room/waiting.wxml-->
 
 <i-grid>
+  <text>\n</text>
   <view wx:for="{{seats}}" wx:for-index="index" wx:for-item="item">
     <i-row>
-      <view wx:for="{{seats[index]}}" wx:for-index="index2" wx:for-item="item">
+      <view wx:for="{{seats[index]}}" wx:for-index="index2" wx:for-item="item" style="text-align: center">
         <i-grid-item>
-          <text>{{seats[index][index2].seatNumber}}</text>
+          <i-avatar src="{{seats[index][index2].avatarUrl}}" size="large" shape="square"></i-avatar>
+          <text>\n{{seats[index][index2].nickName}}</text>
         </i-grid-item>
       </view>
     </i-row> 
   </view>
 </i-grid>
 
-<text>\n</text>
-<button type="default" bindtap="onSetReady" hidden="{{app.globalData.openid != room._openid}}">准备</button>
-<button type="default" bindtap="onStart" hidden="{{app.globalData.openid == room._openid}}">开始游戏</button>
-
-
+<view wx:if="{{!start}}" style="text-align: center">
+  <text>\n房间总人数: {{room.totalPlayer}}</text>
+  <view>
+    <text>\n</text>
+    <button type="default" bindtap="onStart" hidden="{{app.globalData.openid != room._openid}}">开始游戏</button>
+    <button type="default" bindtap="onPrepare" hidden="{{app.globalData.openid == room._openid}}">准备</button>
+    </view>
+</view>
+<view wx:else> 
+  游戏进行中
+</view>
 

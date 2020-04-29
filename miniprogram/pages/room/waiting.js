@@ -11,6 +11,8 @@ Page({
     room: {},
     seats: [],
     start: false,
+    role: null,
+    currentRole: null,
   },
   
 
@@ -18,16 +20,29 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+
+    // For test
+    options.roomId = "3f8c212f5ea61f0b005173ff57ea0fda"
+
     const _this = this;
     const db = wx.cloud.database();
-    db.collection('rooms').doc(options.roomId).get({
+
+    wx.cloud.callFunction({
+      name: 'waitingPlayersInfo',
+      data: {
+        roomId: options.roomId
+      },
       success: res => {
         _this.setData({
-          room: res.data,
+          room: res.result.room,
         });
-        this.calculateSeats(res.data.players)
+        console.log(res)
+        this.calculateSeats(res.result.playersReturn, res.result.room.totalPlayer)
+      },
+      fail: err => {
+        console.error('[云函数] [login] 调用失败', err)
       }
-    });
+    })
   },
 
   /**
@@ -103,19 +118,21 @@ Page({
   /**
    * 分配座位
    */
-  calculateSeats: function(players) {
+  calculateSeats: function(players, totalPlayers) {
 
-    var rows = Math.ceil(players.length / 3);
+    var rows = Math.ceil(totalPlayers / 3);
 
-    var seats = new Array(rows);   //表格有10行
+    var seats = new Array(rows);  
     for (var i = 0; i < seats.length; i++) {
-      seats[i] = new Array(3);    //每行有10列
+      seats[i] = new Array(3);    
     }
 
     for (var i = 0; i < players.length; i++) {
       var seatNumber = players[i].seatNumber 
       seats[Math.floor(seatNumber / 3)][seatNumber % 3] = players[i]
     }
+
+    console.log(seats)
 
     this.setData({
       seats: seats,
