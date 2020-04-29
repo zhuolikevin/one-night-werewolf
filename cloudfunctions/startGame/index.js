@@ -16,6 +16,7 @@ exports.main = async (event, context) => {
       game: {
         roleAssignment: assignRoles(totalRoles),
         startGame: true,
+        currentRole: getNextActionRole(null, totalRoles),
       },
     },
   });
@@ -54,4 +55,31 @@ function shuffle(a) {
       [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+function getNextActionRole(currentRole, totalRoles) {
+  const ACTION_ORDER = [
+    "wereWolf",
+    "mysticWolf",
+    "minion",
+    "mason",
+    "seer",
+    "apprenticeSeer",
+    "robber",
+    "witch",
+    "troublemaker",
+    "drunk",
+    "insomniac",
+    "revealer"
+  ];
+
+  const currIdx = currentRole ? ACTION_ORDER.findIndex(x => x === currentRole) : -1;
+  for (var i = currIdx + 1; i < ACTION_ORDER.length; i++) {
+    const role = ACTION_ORDER[i];
+    if (totalRoles[role] > 0) {
+      return role;
+    }
+  }
+
+  return null;
 }
