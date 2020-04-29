@@ -6,7 +6,7 @@ cloud.init({
 
 const db = cloud.database();
 exports.main = async (event, context) => {
-  const { roomNumber, userInfo } = event;
+  const { roomNumber, richUserInfo, userInfo } = event;
   const { openId } = userInfo;
   const { data: rooms } = await db.collection('rooms').where({ roomNumber: parseInt(roomNumber) }).get();
 
@@ -46,6 +46,7 @@ exports.main = async (event, context) => {
         isRoomMaster: false,
         isReady: false,
         seatNumber,
+        ...richUserInfo
       }),
     },
   }).then(res => ({

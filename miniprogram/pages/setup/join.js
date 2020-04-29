@@ -90,6 +90,7 @@ Page({
       name: 'joinRoom',
       data: {
         roomNumber: this.data.roomNumber,
+        richUserInfo: app.globalData.userInfo,
       },
       success: res => {
         const { success, message, room } = res.result
