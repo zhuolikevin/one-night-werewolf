@@ -8,7 +8,7 @@
       <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
     </block>
-    <block wx:if="{{logged}}">
+    <block wx:if="{{ logged && readyToCreateOrJoin }}">
       <text>\n</text>
       <navigator url="../setup/create" open-type="navigate">
         <button type="default">创建房间</button>

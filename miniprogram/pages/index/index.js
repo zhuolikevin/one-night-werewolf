@@ -7,7 +7,8 @@ Page({
     userInfo: {},
     logged: false,
     takeSession: false,
-    requestResult: ''
+    requestResult: '',
+    readyToCreateOrJoin: false,
   },
 
   onLoad: function() {
@@ -43,6 +44,7 @@ Page({
         avatarUrl: e.detail.userInfo.avatarUrl,
         userInfo: e.detail.userInfo
       })
+      app.globalData.userInfo = e.detail.userInfo;
     }
     this.getOpenId();
   },
@@ -54,13 +56,10 @@ Page({
       data: {},
       success: res => {
         app.globalData.openid = res.result.openid
-        wx.showToast({
-          title: '登陆成功',
-        });
         this.registerPlayer()
       },
       fail: err => {
-        console.error('[云函数] [login] 调用失败', err)
+        console.error('[云函数] [login] 调用失败', err);
         wx.showToast({
           title: '登陆失败',
         });
@@ -79,7 +78,12 @@ Page({
         }
       },
       complete: res => {
-        console.log(res);
+        wx.showToast({
+          title: '登陆成功',
+        });
+        this.setData({
+          readyToCreateOrJoin: true,
+        });
       }
     });
   }

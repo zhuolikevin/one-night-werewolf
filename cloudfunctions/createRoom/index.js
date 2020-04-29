@@ -6,24 +6,24 @@ cloud.init({
 
 const db = cloud.database();
 exports.main = async (event, context) => {
-  const { totalPlayer, userInfo } = event;
-  const { openId: roomMasterOpenId } = userInfo;
+  const { totalPlayer, totalRoles, richUserInfo } = event;
   const roomNumber = generateRoomNumber();
   const seatNumber = generateSeatNumber(totalPlayer, []);
 
   return db.collection('rooms').add({
     data: {
-      _openid: roomMasterOpenId,
+      _openid: richUserInfo.openId,
       totalPlayer,
       roomNumber,
       players: [{
-        openId: roomMasterOpenId,
         isRoomMaster: true,
         isReady: true, // room master is auto ready
         seatNumber,
+        ...richUserInfo
       }],
-      // TODO: add role setting from request
-      roleSettings: {}
+      roleSettings: {
+        totalRoles,
+      }
     }
   }).then(res => ({
       roomId: res._id,

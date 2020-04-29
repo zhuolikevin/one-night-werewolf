@@ -181,16 +181,13 @@ Page({
 
   calculateTotalRoles: function() {
     const {wereWolf, alphaWolf, minion, mysticWolf, seer, 
-    apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, 
-    drunk, mason, villager} = this.data
-    console.log(mason)
+    apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager} = this.data;
     return wereWolf + alphaWolf + minion + mysticWolf + seer + 
       apprenticeSeer + witch + revealer + robber + troublemaker + insomniac + 
       drunk + mason + villager;
   },
 
   onCreateRoom: function() {
-
     var totalPlayers = this.data.totalPlayer
 
     if (isNaN(totalPlayers) || totalPlayers < 3 || totalPlayers >= 20) {
@@ -198,50 +195,32 @@ Page({
       return
     }
 
-    var totalRoles = this.calculateTotalRoles()
+    var totalRolesCount = this.calculateTotalRoles()
 
-    if (totalRoles != totalPlayers + 3) {
-      this.handleAlert("已选角色 " + totalRoles + ", 需要角色" + (totalPlayers + 3), 'warning')
+    if (totalRolesCount != totalPlayers + 3) {
+      this.handleAlert("已选角色 " + totalRolesCount + ", 需要角色" + (totalPlayers + 3), 'warning')
       return
     }
+
+    const { totalPlayer, wereWolf, alphaWolf, minion, mysticWolf, seer, apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager } = this.data;
 
     wx.cloud.callFunction({
       name: 'createRoom',
       data: {
-        totalPlayer: this.data.totalPlayer,
+        totalPlayer,
+        totalRoles: { wereWolf, alphaWolf, minion, mysticWolf, seer, apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager },
+        richUserInfo: app.globalData.userInfo,
       },
       success: res => {
-        console.log("success: ", res);
+        const { success, message, roomId } = res.result
+        if (!success) {
+          this.handleAlert(message, 'warning')
+          return
+        }
+        wx.redirectTo({
+          url: '../room/waiting?roomId=' + roomId,
+        });
       }
     });
-
-    // const db = wx.cloud.database();
-    // db.collection('rooms').add({
-    //   data: {
-    //     totalPlayer: this.data.totalPlayer,
-    //     roomNumber: Math.floor(1000 + Math.random() * 9000),
-    //     players: [app.globalData.openid],
-    //   },
-    //   success: res => {
-    //     wx.showToast({
-    //       title: '创建房间成功',
-    //       icon: 'success',
-    //       duration: 1000,
-    //       success: () => {
-    //         setTimeout(() => {
-    //           wx.redirectTo({
-    //             url: '../room/waiting?roomId=' + res._id,
-    //           });
-    //         }, 1000);
-    //       }
-    //     });
-    //   },
-    //   fail: err => {
-    //     wx.showToast({
-    //       icon: 'none',
-    //       title: '创建房间失败'
-    //     });
-    //   }
-    // })
   }
 })
