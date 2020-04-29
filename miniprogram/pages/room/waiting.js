@@ -36,13 +36,22 @@ Page({
         _this.setData({
           room: res.result.room,
         });
-        console.log(res)
         this.calculateSeats(res.result.playersReturn, res.result.room.totalPlayer)
       },
       fail: err => {
         console.error('[云函数] [login] 调用失败', err)
       }
-    })
+    });
+
+    // watch current room change (e.g other players readiness)
+    const watcher = db.collection('rooms').doc(options.roomId).watch({
+      onChange: function(snapshot) {
+        console.log('snapshot', snapshot)
+      },
+      onError: function(err) {
+        console.error('the watch closed because of error', err)
+      }
+    });
   },
 
   /**
@@ -131,8 +140,6 @@ Page({
       var seatNumber = players[i].seatNumber 
       seats[Math.floor(seatNumber / 3)][seatNumber % 3] = players[i]
     }
-
-    console.log(seats)
 
     this.setData({
       seats: seats,
