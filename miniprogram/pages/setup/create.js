@@ -83,7 +83,7 @@ Page({
 
   handleInputChange: function (e) {
     this.setData({
-      totalPlayer: e.detail.value
+      totalPlayer: e.detail.detail.value
     })
   },
 
@@ -199,7 +199,8 @@ Page({
     var totalRolesCount = this.calculateTotalRoles()
 
     if (totalRolesCount != totalPlayers + 3) {
-      this.handleAlert("已选角色 " + totalRolesCount + ", 需要角色" + (totalPlayers + 3), 'warning')
+      const needRoles = parseInt(totalPlayers) + 3
+      this.handleAlert("已选角色 " + totalRolesCount + ", 需要角色" + needRoles, 'warning')
       return
     }
 
