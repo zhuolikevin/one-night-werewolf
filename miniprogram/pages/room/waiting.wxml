@@ -9,7 +9,7 @@
           <view class="selected-{{selected[index * 3 + index2]}}" style="padding: 10%;" 
           hidden="{{room.totalPlayer <= index * 3 + index2}}">
             <i-avatar src="{{seats[index][index2].avatarUrl}}" size="large" shape="square" ></i-avatar>
-            <text>\n{{seats[index][index2].nickName || "空座位"}}</text>
+            <text class="userinfo-nickname">\n{{seats[index][index2].nickName || "空座位"}}</text>
           </view>
         </i-grid-item>
       </view>
@@ -21,8 +21,8 @@
   <text>\n房间号【{{room.roomNumber}}】| 房间总人数: {{room.totalPlayer}}</text>
   <view>
     <text>\n</text>
-    <button type="default" bindtap="onStart" hidden="{{app.globalData.openid != room._openid}}">开始游戏</button>
-    <button type="default" bindtap="onSetReady" hidden="{{app.globalData.openid == room._openid}}">准备</button>
+    <button type="default" bindtap="onStart" hidden="{{me != room._openid}}" disabled="{{!enableStart}}">开始游戏</button>
+    <button type="default" bindtap="onSetReady" hidden="{{me == room._openid}}" disabled="{{isReady}}">{{isReady == true ? '已准备' : '准备'}}</button>
     </view>
 </view>
 <view wx:else> 

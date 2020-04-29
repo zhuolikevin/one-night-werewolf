@@ -8,9 +8,12 @@ Page({
    * 页面的初始数据
    */
   data: {
+    me: "",
     room: {},
     seats: [],
-    start: true,
+    start: false,
+    enableStart: false,
+    isReady: false,
     role: null,
     currentRole: null,
     selected: [],
@@ -24,7 +27,12 @@ Page({
   onLoad: function (options) {
 
     // For test
-    // options.roomId = "b7ef76b45ea6386900459d9531131c92"
+    options.roomId = "b7ef76b45ea6386900459d9531131c92"
+    app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
+
+    this.setData({
+      me: app.globalData.openid
+    });
 
     const _this = this;
     const db = wx.cloud.database();
@@ -48,7 +56,31 @@ Page({
     // watch current room change (e.g other players readiness)
     const watcher = db.collection('rooms').doc(options.roomId).watch({
       onChange: function(snapshot) {
-        console.log('snapshot', snapshot)
+
+        console.log(snapshot.docs[0])
+        
+        // 监听准备
+        if (app.globalData.openid == _this.data.room._openid && _this.data.start == false) {
+          var players = snapshot.docs[0].players
+          var readyCount = 0
+          for (var i = 0; i < players.length; i++) {
+            if (players[i].isReady) {
+              readyCount++;
+            }
+          }
+          if (readyCount == _this.data.room.totalPlayer - 1) {
+            _this.setData({
+              enableStart: true
+            });
+          } else {
+            _this.setData({
+              enableStart: false
+            });
+          }
+        }
+
+        // 监听开始游戏
+
       },
       onError: function(err) {
         console.error('the watch closed because of error', err)
@@ -115,6 +147,9 @@ Page({
       data: { roomId: this.data.room._id },
       success: res => {
         console.log(res);
+        this.setData({
+          isReady: true
+        });
       }
     })
   },
