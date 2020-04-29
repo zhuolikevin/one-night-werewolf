@@ -24,5 +24,12 @@
 </view>
 <view wx:else> 
   游戏进行中
+  <view wx:if="{{role != currentRole}}">
+    {{currentRole}} 正在行动！
+  </view>
+  <view wx:else> 
+    该你行动啦！
+    <!-- <button type="default" bindtap="onAction" hidden="{{app.globalData.openid == room._openid}}">准备</button> -->
+  </view>
 </view>
 
