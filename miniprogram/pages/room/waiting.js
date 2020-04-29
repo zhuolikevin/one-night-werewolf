@@ -22,7 +22,7 @@ Page({
   onLoad: function (options) {
 
     // For test
-    options.roomId = "3f8c212f5ea61f0b005173ff57ea0fda"
+    options.roomId = "b7ef76b45ea6386900459d9531131c92"
 
     const _this = this;
     const db = wx.cloud.database();
