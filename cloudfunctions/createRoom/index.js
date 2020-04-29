@@ -25,6 +25,9 @@ exports.main = async (event, context) => {
       }],
       roleSettings: {
         totalRoles,
+      },
+      game: {
+        startGame: false,
       }
     }
   }).then(res => ({

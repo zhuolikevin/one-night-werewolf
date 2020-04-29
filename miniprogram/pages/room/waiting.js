@@ -143,14 +143,21 @@ Page({
           isReady: true
         });
       }
-    })
+    });
   },
 
   /**
    * 开始游戏
    */
   onStart: function() {
-    console.log("Now start")
+    console.log("Now start");
+    wx.cloud.callFunction({
+      name: 'startGame',
+      data: { roomId: this.data.room._id },
+      success: res => {
+        console.log(res);
+      }
+    });
   },
 
   /**
