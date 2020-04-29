@@ -9,7 +9,7 @@
           <view class="selected-{{selected[index * 3 + index2]}}" style="padding: 10%;" 
           hidden="{{room.totalPlayer <= index * 3 + index2}}">
             <i-avatar src="{{seats[index][index2].avatarUrl}}" size="large" shape="square" ></i-avatar>
-            <text class="userinfo-nickname">\n{{seats[index][index2].nickName || "空座位"}}</text>
+            <text class="userinfo-nickname">\n{{seats[index][index2].nickName+'('+seats[index][index2].seatNumber+')' || "空座位"}}</text>
           </view>
         </i-grid-item>
       </view>
@@ -54,13 +54,15 @@
       </view>
     </i-row> 
   </i-grid>
-  游戏进行中
+  <text>'你本局游戏的角色是: '</text><text>{{role}}</text>
   <view wx:if="{{role != currentRole}}">
     {{currentRole}} 正在行动！
   </view>
   <view wx:else> 
     该你行动啦！
+    <text>{{currentStep}}</text>
     <button type="default" bindtap="onAction">确定</button>
   </view>
 </view>
 
+<i-message id="message" />
