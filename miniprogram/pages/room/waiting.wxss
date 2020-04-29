@@ -1,1 +1,15 @@
 /* pages/room/waiting.wxss */
+
+.userinfo-nickname {
+  color: #aaa;
+}
+
+.selected-true {
+  border: 2px dashed #555;
+  border-radius: 16px;
+}
+
+.selected-false {
+  border: 0px solid #fff;
+  border-radius: 16px;
+}

@@ -10,9 +10,11 @@ Page({
   data: {
     room: {},
     seats: [],
-    start: false,
+    start: true,
     role: null,
     currentRole: null,
+    selected: [],
+    selectedBottom: [],
   },
   
 
@@ -125,6 +127,35 @@ Page({
   },
 
   /**
+   * 操作卡牌
+   */
+  onSelect: function(e) {
+
+    var selected = this.data.selected
+    var selectedBottom = this.data.selectedBottom
+    var index = e.currentTarget.dataset.index
+
+    if (index >= this.data.room.totalPlayer) {
+      return
+    }
+    if (index >= 0) {
+      selected[e.currentTarget.dataset.index] = !selected[e.currentTarget.dataset.index]
+    } else {
+      selectedBottom[-1 * e.currentTarget.dataset.index - 1] = !selectedBottom[-1 * e.currentTarget.dataset.index - 1]
+    }
+
+    this.setData({
+      selected: selected,
+      selectedBottom: selectedBottom
+    });
+  },
+
+  onAction: function() {
+    console.log(this.data.selected)
+    console.log(this.data.selectedBottom)
+  },
+
+  /**
    * 分配座位
    */
   calculateSeats: function(players, totalPlayers) {
@@ -143,6 +174,21 @@ Page({
 
     this.setData({
       seats: seats,
+    });
+
+    var selected = []
+    for (var i = 0; i < totalPlayers; i++) {
+      selected[i] = false
+    }
+
+    var selectedBottom = []
+    for (var i = 0; i < 3; i++) {
+      selectedBottom[i] = false
+    }
+
+    this.setData({
+      selected: selected,
+      selectedBottom: selectedBottom
     });
 
   }

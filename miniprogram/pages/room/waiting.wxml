@@ -4,10 +4,13 @@
   <text>\n</text>
   <view wx:for="{{seats}}" wx:for-index="index" wx:for-item="item">
     <i-row>
-      <view wx:for="{{seats[index]}}" wx:for-index="index2" wx:for-item="item" style="text-align: center">
+      <view wx:for="{{seats[index]}}" wx:for-index="index2" wx:for-item="item" style="text-align: center" bindtap="onSelect" data-index="{{index * 3 + index2}}">
         <i-grid-item>
-          <i-avatar src="{{seats[index][index2].avatarUrl}}" size="large" shape="square"></i-avatar>
-          <text>\n{{seats[index][index2].nickName}}</text>
+          <view class="selected-{{selected[index * 3 + index2]}}" style="padding: 10%;" 
+          hidden="{{room.totalPlayer <= index * 3 + index2}}">
+            <i-avatar src="{{seats[index][index2].avatarUrl}}" size="large" shape="square" ></i-avatar>
+            <text>\n{{seats[index][index2].nickName || "空座位"}}</text>
+          </view>
         </i-grid-item>
       </view>
     </i-row> 
@@ -15,7 +18,7 @@
 </i-grid>
 
 <view wx:if="{{!start}}" style="text-align: center">
-  <text>\n房间总人数: {{room.totalPlayer}}</text>
+  <text>\n房间号【{{room.roomNumber}}】| 房间总人数: {{room.totalPlayer}}</text>
   <view>
     <text>\n</text>
     <button type="default" bindtap="onStart" hidden="{{app.globalData.openid != room._openid}}">开始游戏</button>
@@ -23,13 +26,41 @@
     </view>
 </view>
 <view wx:else> 
+  <i-grid>
+    <i-row>
+      <view style="text-align: center" bindtap="onSelect" data-index="{{-1}}">
+        <i-grid-item>
+          <view class="selected-{{selectedBottom[0]}}" style="padding: 10%;">
+            <i-avatar src="" size="large" shape="square" ></i-avatar>
+            <text>\n底牌</text>
+          </view>
+        </i-grid-item>
+      </view>
+      <view style="text-align: center" bindtap="onSelect" data-index="{{-2}}">
+        <i-grid-item>
+          <view class="selected-{{selectedBottom[1]}}" style="padding: 10%;">
+            <i-avatar src="" size="large" shape="square" ></i-avatar>
+            <text>\n底牌</text>
+          </view>
+        </i-grid-item>
+      </view>
+      <view style="text-align: center" bindtap="onSelect" data-index="{{-3}}">
+        <i-grid-item>
+          <view class="selected-{{selectedBottom[2]}}" style="padding: 10%;">
+            <i-avatar src="" size="large" shape="square" ></i-avatar>
+            <text>\n底牌</text>
+          </view>
+        </i-grid-item>
+      </view>
+    </i-row> 
+  </i-grid>
   游戏进行中
   <view wx:if="{{role != currentRole}}">
     {{currentRole}} 正在行动！
   </view>
   <view wx:else> 
     该你行动啦！
-    <!-- <button type="default" bindtap="onAction" hidden="{{app.globalData.openid == room._openid}}">准备</button> -->
+    <button type="default" bindtap="onAction">确定</button>
   </view>
 </view>
 
