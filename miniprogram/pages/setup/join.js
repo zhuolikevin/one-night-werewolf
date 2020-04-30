@@ -93,13 +93,13 @@ Page({
         richUserInfo: app.globalData.userInfo,
       },
       success: res => {
-        const { success, message, room } = res.result
+        const { success, message, roomId } = res.result
         if (!success) {
           this.handleAlert(message, 'warning')
           return
         }
         wx.redirectTo({
-          url: '../room/waiting?roomId=' + room._id,
+          url: '../room/waiting?roomId=' + roomId,
         });
       },
       fail: err => {

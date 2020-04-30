@@ -1,7 +1,7 @@
 /* pages/room/waiting.wxss */
 
 .userinfo-nickname {
-  color: #aaa;
+  color: #555;
 }
 
 .selected-true {
@@ -12,4 +12,14 @@
 .selected-false {
   border: 0px solid #fff;
   border-radius: 16px;
+}
+
+.role {
+  border: 1px dashed #555;
+  text-align: center;
+  margin-left: 10%;
+  padding: 5px;
+  margin-right: 10%;
+  margin-bottom: 5%;
+  font-size: 15px;
 }

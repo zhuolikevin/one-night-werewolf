@@ -50,6 +50,12 @@
 					"pathName": "pages/room/waiting",
 					"query": "roomId=\"3f8c212f5ea61f0b005173ff57ea0fda\"",
 					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/setup/join",
+					"pathName": "pages/setup/join",
+					"scene": null
 				}
 			]
 		}

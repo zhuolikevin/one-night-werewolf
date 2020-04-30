@@ -1,0 +1,53 @@
+// 支持es4语法
+var convert = {
+  convertFromEnglishToFull: function (value) {
+    switch (value) {
+      case "wereWolf": {
+        return "狼人[" + value + "]";
+      }
+      case "minion": {
+        return "替罪羊[" + value + "]";
+      }
+      case "alphaWolf": {
+        return "头狼[" + value + "]";
+      }
+      case "mysticWolf": {
+        return "狼预言家[" + value + "]";
+      }
+      case  "seer": {
+        return "预言家[" + value + "]";
+      }
+      case "apprenticeSeer": {
+        return "学徒预言家[" + value + "]";
+      }
+      case "witch": {
+        return "女巫[" + value + "]";
+      }
+      case "revealer": {
+        return "揭示者[" + value + "]";
+      }
+      case "robber": {
+        return "强盗[" + value + "]";
+      }
+      case "troublemaker": {
+        return "捣蛋鬼[" + value + "]";
+      }
+      case "insomniac": {
+        return "失眠者[" + value + "]";
+      }
+      case "drunk": {
+        return "酒鬼[" + value + "]";
+      }
+      case "mason": {
+        return "守夜人[" + value + "]";
+      }
+      case "villager": {
+        return "村民[" + value + "]";
+      }
+    }
+  }
+}
+// 导出对外暴露的属性
+module.exports = {
+  convertFull: convert.convertFromEnglishToFull
+}
