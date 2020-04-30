@@ -27,7 +27,7 @@ exports.main = async (event, context) => {
         totalRoles,
       },
       game: {
-        startGame: false,
+        status: 'waiting',
       }
     }
   }).then(res => ({

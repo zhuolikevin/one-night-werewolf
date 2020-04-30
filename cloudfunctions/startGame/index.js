@@ -18,7 +18,7 @@ exports.main = async (event, context) => {
     data: {
       game: {
         roleAssignment,
-        startGame: true,
+        status: 'gaming',
         currentRole: nextActionRole,
         inGraveyardNextRoles,
       },
