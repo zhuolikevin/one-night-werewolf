@@ -57,7 +57,10 @@ exports.main = async (event, context) => {
 }
 
 function generateSeatNumber(totalPlayer, seatedNumbers) {
-  const allSeatNumbers = [...Array(totalPlayer).keys()];
+  const allSeatNumbers = [];
+  for (var i = 0; i < totalPlayer; i++) {
+    allSeatNumbers.push(i);
+  }
   const candidateSeatNumbers = allSeatNumbers.filter(x => !seatedNumbers.includes(x));
   return candidateSeatNumbers[Math.floor(Math.random() * candidateSeatNumbers.length)];
 }
