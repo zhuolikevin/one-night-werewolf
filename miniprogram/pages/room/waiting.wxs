@@ -45,9 +45,17 @@ var convert = {
         return "村民[" + value + "]";
       }
     }
+  },
+  convertToGroup: function(value) {
+    console.log(value)
+    if (value == "mysticWolf" || value == "alphaWolf") {
+      return "wereWolf"
+    }
+    else return value
   }
 }
 // 导出对外暴露的属性
 module.exports = {
-  convertFull: convert.convertFromEnglishToFull
+  convertFull: convert.convertFromEnglishToFull,
+  convertGroup: convert.convertToGroup
 }

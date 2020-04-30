@@ -25,6 +25,8 @@ Page({
     // 女巫
     round: 0,
     lastSelected: null,
+    // 狼人
+    onlyWolf: false,
   },
   
 
@@ -114,11 +116,10 @@ Page({
             currentRole: currentGame.currentRole
           });
 
-          console.log(_this.data.role)
-
           // （所有人）监听游戏中的其余角色
           if (currentGame.currentRole != _this.data.role) {
             // 狼人阶段头狼和狼预言家也要睁眼
+            _this.updateStep("")
             if (currentGame.currentRole == "wereWolf") {
               if (_this.data.role == "alphaWolf" || _this.data.role == "mysticWolf") {
                 _this.setHint(currentGame)
@@ -240,7 +241,6 @@ Page({
   setHint: function(game) {
 
     var players = game.roleAssignment.playerRoles;
-    console.log(game.currentRole)
 
     switch (game.currentRole) {
       case "wereWolf": {
@@ -250,7 +250,14 @@ Page({
             wolf += i + "号 ";
           }
         }
-        this.updateStep("你的狼同伴是: " + wolf);
+        if (wolf == "") {
+          this.setData({
+            onlyWolf: true
+          })
+          this.updateStep("狼人只有你自己，你可以选择查看一张底牌");
+        } else {
+          this.updateStep("你的狼同伴是: " + wolf);
+        }
         break;
       }
       case "minion": {
@@ -302,11 +309,17 @@ Page({
       case "mason": {
         var mason = ""
         for (var i = 0; i < players.length; i++) {
-          if (players[i].init == "mason") {
-            mason += i + "号 ";
+          if (i != this.data.mySeat) {
+            if (players[i].init == "mason") {
+              mason += i + "号 ";
+            }
           }
         }
-        this.updateStep("守夜人是: " + mason);
+        if (mason == "") {
+          this.updateStep("守夜人只有你自己");
+        } else {
+          this.updateStep("另外的守夜人是: " + mason);
+        }
         break;
       }
     }
@@ -362,13 +375,24 @@ Page({
       }
     }
 
-    switch(this.data.role) {
+    switch(game.currentRole) {
 
       // 狼人 || 爪牙 || 失眠者 || 守夜人
       // 夜晚除了看牌外无(选牌)操作
       case ("wereWolf" || "minion" || "insomniac" || "mason"): {
-        if (selectedPlayers.length > 0 || selectedGraveyard.length > 0) {
-          this.handleAlert("请不要选择玩家或者底牌哦", 'warning')
+
+        // 如果是独狼可以查看一张底牌
+        if (this.data.onlyWolf && (this.data.role == "wereWolf" || this.data.role == "alphaWolf" || this.data.role == "mysticWolf")) {
+          // 玩家
+          if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
+            this.handleAlert("请（只）选择一张底牌哦", 'warning')
+          } else {
+            this.updateStep("这张底牌的身份是: " + this.convertFull(game.roleAssignment.graveyardRoles[selectedGraveyard[0]].current))
+          }
+        } else {
+          if (selectedPlayers.length > 0 || selectedGraveyard.length > 0)        {
+            this.handleAlert("请不要选择玩家或者底牌哦", 'warning')
+          }
         }
         break;
       }
@@ -378,7 +402,7 @@ Page({
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择一名玩家哦", 'warning')
         } else {
-          game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole = "wereWolf"
+          game.roleAssignment.playerRoles[selectedPlayers[0]].current = "wereWolf"
         }
         break;
       }
@@ -386,13 +410,12 @@ Page({
       // 查看场上一名玩家身份
       case "mysticWolf" || "seer": {
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
-          this.handleAlert("请（只）选择一名玩家哦", 'warning')
-        } else if (selectedPlayers[0] == this.data.mySeat) {
-          this.handleAlert("请不要选择自己哦", 'warning')
-        } else {
-          console.log(game)
-          this.updateStep("这名玩家的身份是: " + this.convertFull(game.roleAssignment.playerRoles[selectedPlayers[0]].current))
-        }
+            this.handleAlert("请（只）选择一名玩家哦", 'warning')
+          } else if (selectedPlayers[0] == this.data.mySeat) {
+            this.handleAlert("请不要选择自己哦", 'warning')
+          } else {
+            this.updateStep("这名玩家的身份是: " + this.convertFull(game.roleAssignment.playerRoles[selectedPlayers[0]].current))
+          }
         break;
       }
       // 学徒预言家
@@ -411,21 +434,27 @@ Page({
         if (this.data.round == 0) {
           if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
             this.handleAlert("请（只）选择一张底牌哦", 'warning')
+            return
           } else {
             this.updateStep("这张底牌的身份是: " + this.convertFull(game.roleAssignment.graveyardRoles[selectedGraveyard[0]].current) + ", 再选择一名玩家把这个身份给他吧")
+            this.setData({
+              lastSelected: selectedGraveyard[0]
+            });
           }
         }
         if (this.data.round == 1) {
-          if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
+          if (selectedPlayers.length != 1) {
             this.handleAlert("请（只）选择一名玩家哦", 'warning')
+            return
           } else {
-            var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole
-            game.roleAssignment.playerRoles[selected[0]].current = game.roleAssignment.graveyardRoles[lastSelected].current
-            game.roleAssignment.graveyardRoles[lastSelected].current = playerRole
+            var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].current
+            game.roleAssignment.playerRoles[selectedPlayers[0]].current = game.roleAssignment.graveyardRoles[this.data.lastSelected].current
+            game.roleAssignment.graveyardRoles[this.data.lastSelected].current = playerRole
           }
         }
+        var newData = parseInt(this.data.round) + 1
         this.setData({
-          round: this.setData.round + 1
+          round: newData
         });
         break;
       }
@@ -459,7 +488,7 @@ Page({
           this.handleAlert("请（只）选择二名玩家哦", 'warning')
         } else {
           var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].current
-          game.roleAssignment.playerRoles[selectedPlayers[0]].current = game.players[selectedPlayers[1]].current
+          game.roleAssignment.playerRoles[selectedPlayers[0]].current = game.roleAssignment.playerRoles[selectedPlayers[1]].current
           game.roleAssignment.playerRoles[selectedPlayers[1]].current = playerRole
         }
         break;
@@ -470,9 +499,9 @@ Page({
         if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
           this.handleAlert("请（只）选择一张底牌", 'warning')
         } else {
-          var bottomRole = game.roleAssignment.graveyardRoles[selectedGraveyard[0]].currentRole
-          game.roleAssignment.graveyardRoles[selectedGraveyard[0]].currentRole = game.roleAssignment.playerRoles[this.data.mySeat].currentRole
-          game.roleAssignment.playerRoles[this.data.mySeat].currentRole = bottomRole
+          var graveyardRole = game.roleAssignment.graveyardRoles[selectedGraveyard[0]].current
+          game.roleAssignment.graveyardRoles[selectedGraveyard[0]].current = game.roleAssignment.playerRoles[this.data.mySeat].current
+          game.roleAssignment.playerRoles[this.data.mySeat].current = graveyardRole
         }
         break;
       }

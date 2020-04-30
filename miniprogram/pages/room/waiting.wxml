@@ -47,7 +47,7 @@
       </view>
       <view style="text-align: center" bindtap="onSelect" data-index="{{-3}}">
         <i-grid-item>
-          <view class="selected-{{selectedBottom[2]}}" style="padding: 10%;">
+          <view class="selected-{{selectedGraveyard[2]}}" style="padding: 10%;">
             <i-avatar src="" size="large" shape="square" ></i-avatar>
             <text class="userinfo-nickname">\n底牌</text>
           </view>
@@ -59,11 +59,12 @@
     <text >你本局游戏的角色是: \n</text>
     <text style="color:#ce749d; font-weight:700">{{convert.convertFull(role)}}</text>
   </view>
-  <view wx:if="{{role != currentRole}}" style="text-align: center" >
+  <view wx:if="{{convert.convertGroup(role) != convert.convertGroup(currentRole)}}" style="text-align: center; margin-left: 10%; margin-right: 10%" >
     <text style="color:#ce749d; font-weight:700">{{convert.convertFull(currentRole)}}</text> 
     <text> 正在行动！</text>
+    <text style="color:#7497ce; font-weight:700">{{currentStep}}</text>
   </view>
-  <view wx:else style="text-align: center" > 
+  <view wx:else style="text-align: center; margin-left: 10%; margin-right:10%" > 
     <text>该你行动啦! </text>
     <text style="color:#7497ce; font-weight:700">{{currentStep}}</text>
     <button type="default" bindtap="onAction" style="margin-top: 5%">确定</button>
