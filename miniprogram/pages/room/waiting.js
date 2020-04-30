@@ -34,11 +34,11 @@ Page({
   onLoad: function (options) {
 
     // For test
-    options.roomId = "da5f6ae65eaa432c001c5f6a564f4e6c"
-    app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
-    this.setData({
-      start: true
-    });
+    // options.roomId = "da5f6ae65eaa432c001c5f6a564f4e6c"
+    // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
+    // this.setData({
+    //   start: true
+    // });
 
     this.delay(1000)
 
@@ -104,7 +104,9 @@ Page({
             });
           }
         // 游戏已经开始
-        } else {
+        } 
+        
+        if (_this.data.start) {
 
           var currentGame = snapshot.docs[0].game
           _this.setData({
@@ -349,7 +351,7 @@ Page({
 
     var selectedPlayers = []
     var selectedGraveyard = []
-    for (var i = 0; i < this.data.selectedPlayers; i++) {
+    for (var i = 0; i < this.data.selectedPlayers.length; i++) {
       if (this.data.selectedPlayers[i]) {
         selectedPlayers.push(i)
       }
@@ -385,8 +387,11 @@ Page({
       case "mysticWolf" || "seer": {
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择一名玩家哦", 'warning')
+        } else if (selectedPlayers[0] == this.data.mySeat) {
+          this.handleAlert("请不要选择自己哦", 'warning')
         } else {
-          this.updateStep("这名玩家的身份是: " + game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole)
+          console.log(game)
+          this.updateStep("这名玩家的身份是: " + this.convertFull(game.roleAssignment.playerRoles[selectedPlayers[0]].current))
         }
         break;
       }
@@ -396,7 +401,7 @@ Page({
         if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
           this.handleAlert("请（只）选择一张底牌哦", 'warning')
         } else {
-          this.updateStep("这张底牌的身份是: " + game.roleAssignment.graveyardRoles[selectedGraveyard[0]].currentRole)
+          this.updateStep("这张底牌的身份是: " + this.convertFull(game.roleAssignment.graveyardRoles[selectedGraveyard[0]].current))
         }
         break;
       }
@@ -407,7 +412,7 @@ Page({
           if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
             this.handleAlert("请（只）选择一张底牌哦", 'warning')
           } else {
-            this.updateStep("这张底牌的身份是: " + game.roleAssignment.graveyardRoles[selectedGraveyard[0]].currentRole + ", 再选择一名玩家把这个身份给他吧")
+            this.updateStep("这张底牌的身份是: " + this.convertFull(game.roleAssignment.graveyardRoles[selectedGraveyard[0]].current) + ", 再选择一名玩家把这个身份给他吧")
           }
         }
         if (this.data.round == 1) {
@@ -415,8 +420,8 @@ Page({
             this.handleAlert("请（只）选择一名玩家哦", 'warning')
           } else {
             var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole
-            game.roleAssignment.playerRoles[selected[0]].currentRole = game.roleAssignment.graveyardRoles[lastSelected].currentRole
-            game.roleAssignment.graveyardRoles[lastSelected].currentRole = playerRole
+            game.roleAssignment.playerRoles[selected[0]].current = game.roleAssignment.graveyardRoles[lastSelected].current
+            game.roleAssignment.graveyardRoles[lastSelected].current = playerRole
           }
         }
         this.setData({
@@ -429,7 +434,7 @@ Page({
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择一名玩家哦", 'warning')
         } else {
-          this.updateStep("这名玩家的身份是: " + game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole)
+          this.updateStep("这名玩家的身份是: " + game.roleAssignment.playerRoles[selectedPlayers[0]].current)
           // TODO: 数据库里说明翻牌座位号和角色
         }
         break;
@@ -440,10 +445,10 @@ Page({
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择一名玩家哦", 'warning')
         } else {
-          this.updateStep("这名玩家(你现在)的身份是: " + game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole)
-          var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole
-          game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole = game.roleAssignment.playerRoles[this.data.mySeat].currentRole
-          game.roleAssignment.playerRoles[this.data.mySeat].currentRole = playerRole
+          this.updateStep("这名玩家(你现在)的身份是: " + game.roleAssignment.playerRoles[selectedPlayers[0]].current)
+          var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].current
+          game.roleAssignment.playerRoles[selectedPlayers[0]].current = game.roleAssignment.playerRoles[this.data.mySeat].current
+          game.roleAssignment.playerRoles[this.data.mySeat].current = playerRole
         }
         break;
       }
@@ -453,9 +458,9 @@ Page({
         if (selectedPlayers.length != 2 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择二名玩家哦", 'warning')
         } else {
-          var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole
-          game.roleAssignment.playerRoles[selectedPlayers[0]].currentRole = game.players[selectedPlayers[1]].currentRole
-          game.roleAssignment.playerRoles[selectedPlayers[1]].currentRole = playerRole
+          var playerRole = game.roleAssignment.playerRoles[selectedPlayers[0]].current
+          game.roleAssignment.playerRoles[selectedPlayers[0]].current = game.players[selectedPlayers[1]].current
+          game.roleAssignment.playerRoles[selectedPlayers[1]].current = playerRole
         }
         break;
       }
@@ -526,7 +531,50 @@ Page({
     })
   },
 
-  convert: function(name) {
-    return "hhh" + name
+  convertFull: function (value) {
+    switch (value) {
+      case "wereWolf": {
+        return "狼人[" + value + "]";
+      }
+      case "minion": {
+        return "替罪羊[" + value + "]";
+      }
+      case "alphaWolf": {
+        return "头狼[" + value + "]";
+      }
+      case "mysticWolf": {
+        return "狼预言家[" + value + "]";
+      }
+      case "seer": {
+        return "预言家[" + value + "]";
+      }
+      case "apprenticeSeer": {
+        return "学徒预言家[" + value + "]";
+      }
+      case "witch": {
+        return "女巫[" + value + "]";
+      }
+      case "revealer": {
+        return "揭示者[" + value + "]";
+      }
+      case "robber": {
+        return "强盗[" + value + "]";
+      }
+      case "troublemaker": {
+        return "捣蛋鬼[" + value + "]";
+      }
+      case "insomniac": {
+        return "失眠者[" + value + "]";
+      }
+      case "drunk": {
+        return "酒鬼[" + value + "]";
+      }
+      case "mason": {
+        return "守夜人[" + value + "]";
+      }
+      case "villager": {
+        return "村民[" + value + "]";
+      }
+    }
   }
 })

@@ -7,7 +7,7 @@
     <i-row>
       <view wx:for="{{seats[index]}}" wx:for-index="index2" wx:for-item="item" style="text-align: center" bindtap="onSelect" data-index="{{index * 3 + index2}}">
         <i-grid-item>
-          <view class="selected-{{selected[index * 3 + index2]}}" style="padding: 10%;" 
+          <view class="selected-{{selectedPlayers[index * 3 + index2]}}" style="padding: 10%;" 
           hidden="{{room.totalPlayer <= index * 3 + index2}}">
             <i-avatar src="{{seats[index][index2].avatarUrl}}" size="large" shape="square" ></i-avatar>
             <text class="userinfo-nickname">\n{{(seats[index][index2].nickName || "空座位") +'('+ (index * 3 + index2)+')'}}</text>
@@ -31,7 +31,7 @@
     <i-row>
       <view style="text-align: center" bindtap="onSelect" data-index="{{-1}}">
         <i-grid-item>
-          <view class="selected-{{selectedBottom[0]}}" style="padding: 10%;">
+          <view class="selected-{{selectedGraveyard[0]}}" style="padding: 10%;">
             <i-avatar src="" size="large" shape="square" ></i-avatar>
             <text class="userinfo-nickname">\n底牌</text>
           </view>
@@ -39,7 +39,7 @@
       </view>
       <view style="text-align: center" bindtap="onSelect" data-index="{{-2}}">
         <i-grid-item>
-          <view class="selected-{{selectedBottom[1]}}" style="padding: 10%;">
+          <view class="selected-{{selectedGraveyard[1]}}" style="padding: 10%;">
             <i-avatar src="" size="large" shape="square" ></i-avatar>
             <text class="userinfo-nickname">\n底牌</text>
           </view>
@@ -59,8 +59,9 @@
     <text >你本局游戏的角色是: \n</text>
     <text style="color:#ce749d; font-weight:700">{{convert.convertFull(role)}}</text>
   </view>
-  <view wx:if="{{role != currentRole}}">
-    {{currentRole}} 正在行动！
+  <view wx:if="{{role != currentRole}}" style="text-align: center" >
+    <text style="color:#ce749d; font-weight:700">{{convert.convertFull(currentRole)}}</text> 
+    <text> 正在行动！</text>
   </view>
   <view wx:else style="text-align: center" > 
     <text>该你行动啦! </text>
