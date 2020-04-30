@@ -189,17 +189,16 @@ Page({
 
   onCreateRoom: function() {
     var totalPlayers = this.data.totalPlayer;
-    debugger;
 
-    if (isNaN(totalPlayers) || totalPlayers < 3 || totalPlayers >= 20) {
-      this.handleAlert("请输入合法房间人数（数字3到20）", 'warning')
+    if (isNaN(totalPlayers) || totalPlayers < 2 || totalPlayers >= 20) {
+      this.handleAlert("请输入合法房间人数（数字2到20）", 'warning')
       return;
     }
 
     var totalRolesCount = this.calculateTotalRoles()
 
-    if (totalRolesCount != totalPlayers + 3) {
-      const needRoles = parseInt(totalPlayers) + 3
+    const needRoles = parseInt(totalPlayers) + 3
+    if (totalRolesCount != needRoles) {
       this.handleAlert("已选角色 " + totalRolesCount + ", 需要角色" + needRoles, 'warning')
       return
     }

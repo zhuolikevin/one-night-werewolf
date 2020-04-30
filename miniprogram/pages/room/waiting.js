@@ -35,8 +35,8 @@ Page({
   onLoad: function (options) {
 
     // For test
-    options.roomId = "da5f6ae65ea8f66d000931435837f426"
-    app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
+    // options.roomId = "19762d645eaa162c001f935166207880"
+    // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
 
     this.setData({
       me: app.globalData.openid
@@ -48,7 +48,7 @@ Page({
     db.collection('rooms').doc(options.roomId).get({
       success: res => {
         const room = res.data;
-        _this.setData({ room });
+        _this.setData({room: room});
         this.calculateSeats(room.players, room.totalPlayer);
       }
     });
@@ -58,6 +58,16 @@ Page({
       onChange: function(snapshot) {
 
         console.log(snapshot)
+
+        if (snapshot.docs.length == 0) {
+          return
+        }
+
+        // 监听新玩家加入
+        if (!_this.data.start && !snapshot.docs[0].game.startGame) {
+          _this.setData({room: snapshot.docs[0]});
+          _this.calculateSeats(snapshot.docs[0].players, snapshot.docs[0].totalPlayer);
+        }
         
         // 监听准备
         if (app.globalData.openid == _this.data.room._openid && _this.data.start == false) {
@@ -68,11 +78,10 @@ Page({
               readyCount++;
             }
           }
-          if (readyCount == _this.data.room.totalPlayer - 1) {
+          if (readyCount == _this.data.room.totalPlayer) {
             _this.setData({
               enableStart: true
             });
-            lastGameLen = snapshot.docs[0].games.length
           } else {
             _this.setData({
               enableStart: false
@@ -81,13 +90,14 @@ Page({
         }
 
         // 监听开始游戏
-        if (!_this.data.start && snapshot.docs[0].startGame)        
+        if ((!_this.data.start) && snapshot.docs[0].game.startGame)        
         {
           const newGame = snapshot.docs[0].game
           _this.setData({
             start: true,
             game: newGame,
-            role: newGame[mySeat].initialRole,
+            role: newGame.roleAssignment.playerRoles[_this.data.mySeat].init,
+            currentRole: newGame.currentRole,
           });
         }
 
@@ -442,8 +452,11 @@ Page({
       seats[i] = new Array(3);    
     }
 
+    console.log(seats)
+
     for (var i = 0; i < players.length; i++) {
       var seatNumber = players[i].seatNumber 
+      console.log(seatNumber)
       if (players[i].openId == this.data.me) {
         this.setData({
           mySeat: players[i].seatNumber 
@@ -451,6 +464,8 @@ Page({
       }
       seats[Math.floor(seatNumber / 3)][seatNumber % 3] = players[i]
     }
+
+    console.log(seats)
 
     this.setData({
       seats: seats,
