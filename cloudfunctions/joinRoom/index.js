@@ -23,7 +23,7 @@ exports.main = async (event, context) => {
   if (players.map(player => player.openId).includes(openId)) {
     // player already in room
     return {
-      room: rooms[0],
+      roomId,
       success: true,
       message: `您已在房间中`,
     };
@@ -50,7 +50,7 @@ exports.main = async (event, context) => {
       }),
     },
   }).then(res => ({
-    room: res,
+    roomId,
     success: true,
     message: '进入房间成功',
   }));
