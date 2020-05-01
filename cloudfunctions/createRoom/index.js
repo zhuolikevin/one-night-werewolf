@@ -30,7 +30,7 @@ exports.main = async (event, context) => {
         status: 'waiting',
         results: {
           playerResults: new Array(parseInt(totalPlayer)).fill([]),
-          graveyardResults: new Array(3).fill([]),
+          graveyardResults: [],
           winner: null
         }
       }

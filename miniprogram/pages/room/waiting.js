@@ -39,10 +39,10 @@ Page({
   onLoad: function (options) {
 
     // For test
-    options.roomId = "5feb61565eab9320004057805c2d4eff"
-    app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
+    // options.roomId = "da5f6ae65eaa432c001c5f6a564f4e6c"
+    // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
     // this.setData({
-    //   status: "gaming"
+    //   status: "voting"
     // });
 
     this.delay(1000)
@@ -645,14 +645,14 @@ Page({
       // TODO：发送投票结果
 
       const selectedPlayer = selectedPlayers.length > 0 ? selectedPlayers[0] : -1;
-      const selectedGraveyardRole = selectedGraveyard.length > 0 ? selectedGraveyard[0] : -1;
+      // const selectedGraveyardRole = selectedGraveyard.length > 0 ? selectedGraveyard[0] : -1;
 
       wx.cloud.callFunction({
         name: 'vote',
         data: {
           roomId: _this.data.room._id,
-          selectedPlayer: selectedPlayer,
-          selectedGraveyard: selectedGraveyardRole
+          seatNumber: _this.data.mySeat,
+          selectedPlayer: selectedPlayer
         },
         success: res => {
           console.log(res)
