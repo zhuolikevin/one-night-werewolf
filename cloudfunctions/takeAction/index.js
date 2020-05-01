@@ -46,7 +46,8 @@ exports.main = async (event, context) => {
     const { result } = await cloud.callFunction({
       name: 'calculateNextActionRole',
       data: {
-        currentRole,
+        // 如果当前角色为null，就用墓地假角色算下一个行动角色
+        currentRole: currentRole || inGraveyardNextActionRoleBC,
         totalRoles,
         roleAssignment: roleAssignmentAC
       }

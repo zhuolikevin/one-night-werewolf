@@ -9,6 +9,7 @@ exports.main = async (event, context) => {
 
   const ACTION_ORDER = [
     "wereWolf",
+    "alphaWolf",
     "mysticWolf",
     "minion",
     "mason",
@@ -22,6 +23,40 @@ exports.main = async (event, context) => {
     "revealer"
   ];
 
+  if (currentRole === null) {
+    // 开始游戏，第一次请求行动角色，此角色一定为狼（场上或墓地家角色）
+    const wolves = ["wereWolf", "alphaWolf", "mysticWolf"];
+    var wolfCount = 0;
+    for (const r in initPlayerRoles) {
+      if (wolves.includes(r)) {
+        wolfCount++;
+      }
+    }
+
+    if (wolfCount > 0) {
+      // 有任何一种狼在场上，第一个行动角色一定是wereWolf
+      return {
+        nextActionRole: "wereWolf",
+        totalNextActionRoleCount: wolfCount,
+        inGraveyardNextActionRole: {
+          role: null,
+          pendingTime: 0
+        }
+      };
+    }
+
+    // 所有狼都在墓地
+    return {
+      nextActionRole: null,
+      totalNextActionRoleCount: 0,
+      inGraveyardNextActionRole: {
+        role: "wereWolf",
+        pendingTime: generateRandomActionTime(10000, 20000)
+      }
+    };
+  }
+
+  // 第二次及以后请求角色
   const { graveyardRoles, playerRoles } = roleAssignment; 
   const initGraveyardRoles = graveyardRoles.map(role => role.init);
   const initPlayerRoles = playerRoles.map(role => role.init);
