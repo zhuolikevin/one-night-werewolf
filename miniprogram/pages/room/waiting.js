@@ -21,7 +21,7 @@ Page({
     selectedPlayers: [],
     selectedGraveyard: [],
     currentStep: "",
-    seatToPlayersName: [],
+    simulated: [],
     // 女巫
     round: 0,
     lastSelected: null,
@@ -42,9 +42,9 @@ Page({
     // For test
     // options.roomId = "da5f6ae65eaa432c001c5f6a564f4e6c"
     // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
-    // this.setData({
-    //   status: "voting"
-    // });
+    this.setData({
+      simulated: [],
+    });
 
     this.delay(1000)
 
@@ -110,7 +110,6 @@ Page({
             _this.setData({
               status: "gaming",
               role: snapshot.docs[0].game.roleAssignment.playerRoles[_this.data.mySeat].init,
-              currentRole: snapshot.docs[0].game.currentRole,
             });
           }
         // 游戏已经开始
@@ -139,7 +138,7 @@ Page({
               }
             }
             // 如果这个角色在墓地里
-            if (currentGame.currentRole == null && snapshot.docs[0].game.status == "gaming") {
+            if (currentGame.currentRole == null && snapshot.docs[0].game.status == "gaming") {  
               _this.simulateAction(currentGame)
             }
           }
@@ -587,7 +586,8 @@ Page({
       name: 'takeAction',
       data: {
         roomId: _this.data.room._id,
-        game: game
+        game: game,
+        myRole: _this.data.role
       },
       success: res => {
         console.log(res)
@@ -600,13 +600,21 @@ Page({
    */
   simulateAction: function(game) {
 
+    for (var i = 0; i < this.data.simulated.length; i++) {
+      if (this.data.currentRole == this.data.simulated[i]) {
+        return
+      }
+    }
+
+    console.log("[current role]", this.data.currentRole)
+    console.log("[simulated]", this.data.simulated)
+
     const time = game.inGraveyardNextActionRole.pendingTime
     var _this = this
 
     console.log("[before delay] ", time);
     _this.delay(time).then(
       res => {
-        var takeAction = false
         wx.cloud.callFunction({
           name: 'takeAction',
           data: {
@@ -614,16 +622,17 @@ Page({
             game: game
           },
           success: res => {
-            console.log(res)
-            takeAction = true
+            var simulated = _this.data.simulated
+            simulated.push(_this.data.currentRole) 
+            _this.setData({
+              simulated: simulated,
+            })
             return
           }
         })
-        if (takeAction) {
-          return
-        }
       }
     )
+    
 
   },
 
@@ -781,7 +790,6 @@ Page({
       selectedPlayers: [],
       selectedGraveyard: [],
       currentStep: "",
-      seatToPlayersName: [],
       // 女巫
       round: 0,
       lastSelected: null,
