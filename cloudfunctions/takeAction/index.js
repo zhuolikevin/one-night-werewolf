@@ -16,7 +16,7 @@ exports.main = async (event, context) => {
     currentRole,
     currentRoleCount: currentRoleCountBC,
     currentRoleActionedCount: currentRoleActionedCountBC,
-    inGraveyardNextRoles: inGraveyardNextRolesBC,
+    inGraveyardNextActionRole: inGraveyardNextActionRoleBC,
   } = gameBC;
   const {
     roleAssignment: roleAssignmentAC,
@@ -26,82 +26,47 @@ exports.main = async (event, context) => {
     return db.collection('rooms').doc(roomId).update({
       data: {
         game: {
+          // 更新角色分配
           roleAssignment: roleAssignmentAC,
+          // 继续游戏状态
           status: 'gaming',
+          // 当前行动角色不变
           currentRole,
-          currentRoleCount: currentRoleCountBC, // 当前在场上的该角色人数（除去墓地里的）
-          currentRoleActionedCount: currentRoleActionedCountBC + 1, // 该角色已经行动的人数
-          inGraveyardNextRoles: inGraveyardNextRolesBC,
+          // 当前场上行动角色（除去墓地里的）总数不变
+          currentRoleCount: currentRoleCountBC, 
+          // 该角色已行动人数加1
+          currentRoleActionedCount: currentRoleActionedCountBC + 1,
+          // 墓地假行动角色不变
+          inGraveyardNextActionRole: inGraveyardNextActionRoleBC,
         }
       },
     });
   } else {
     // 所有该角色都已经take action了
-    const { nextActionRole, inGraveyardNextRoles } = getNextActionRole(currentRole, totalRoles, roleAssignmentAC);
+    const { result } = cloud.callFunction({
+      name: 'calculateNextActionRole',
+      data: {
+        currentRole,
+        totalRoles,
+        roleAssignment: roleAssignmentAC
+      }
+    });
+    const {
+      nextActionRole,
+      totalNextActionRoleCount,
+      inGraveyardNextActionRole
+    }  = result;
 
     return db.collection('rooms').doc(roomId).update({
       data: {
         game: {
           roleAssignment: roleAssignmentAC,
-          status: nextActionRole === null ? 'voting' : 'gaming',
+          status: nextActionRole === null && inGraveyardNextActionRole === null ? 'voting' : 'gaming',
           currentRole: nextActionRole,
-          inGraveyardNextRoles,
+          currentRoleCount: totalNextActionRoleCount,
+          inGraveyardNextActionRole,
         },
       },
     });
   }
-}
-
-function getNextActionRole(currentRole, totalRoles, roleAssignment) {
-  const ACTION_ORDER = [
-    "wereWolf",
-    "alphaWolf",
-    "mysticWolf",
-    "minion",
-    "mason",
-    "seer",
-    "apprenticeSeer",
-    "robber",
-    "witch",
-    "troublemaker",
-    "drunk",
-    "insomniac",
-    "revealer"
-  ];
-  const { graveyardRoles, playerRoles } = roleAssignment; 
-  const initGraveyardRoles = graveyardRoles.map(role => role.init);
-  const initPlayerRoles = playerRoles.map(role => role.init);
-
-  const currIdx = currentRole ? ACTION_ORDER.findIndex(x => x === currentRole) : -1;
-
-  var nextActionRole = null;
-  var totalNextActionRoleCount = 0;
-  var inGraveyardNextRoles = [];
-
-  for (var i = currIdx + 1; i < ACTION_ORDER.length; i++) {
-    const role = ACTION_ORDER[i];
-    if (totalRoles[role] > 0) {
-      if (initGraveyardRoles.includes(role) && !initPlayerRoles.includes(role)) {
-        inGraveyardNextRoles.push({
-          role,
-          pendingTime: generateRandomActionTime(5000, 15000)
-        });
-        continue;
-      } else {
-        nextActionRole = role;
-        totalNextActionRoleCount = initPlayerRoles.filter(x => x === role).length;
-        break;
-      }
-    }
-  }
-
-  return {
-    nextActionRole,
-    totalNextActionRoleCount,
-    inGraveyardNextRoles
-  };
-}
-
-function generateRandomActionTime(min, max) {  
-  return Math.floor(Math.random() * (max - min) + min); 
 }
