@@ -53,7 +53,8 @@ exports.main = async (event, context) => {
     // 所有狼都在墓地
     return {
       nextActionRole: null,
-      totalNextActionRoleCount: 0,
+      // 如果下一个是墓地假角色，需要等待所有玩家返回
+      totalNextActionRoleCount: totalRoles,
       inGraveyardNextActionRole: {
         role: "wereWolf",
         pendingTime: generateRandomActionTime(10000, 20000)
@@ -80,6 +81,8 @@ exports.main = async (event, context) => {
           role,
           pendingTime: generateRandomActionTime(5000, 15000)
         };
+        // 如果下一个是墓地假角色，需要等待所有玩家返回
+        totalNextActionRoleCount = totalRoles;
       } else {
         nextActionRole = role;
         totalNextActionRoleCount = initPlayerRoles.filter(x => x === role).length;

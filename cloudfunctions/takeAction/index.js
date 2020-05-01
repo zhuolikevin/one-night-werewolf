@@ -44,6 +44,10 @@ exports.main = async (event, context) => {
     });
   } else {
     // 所有该角色都已经take action了
+    console.log("[LOG] Before getNext: ", {
+      currentRole,
+      inGraveyardNextActionRoleBC,
+    });
     const { result } = await cloud.callFunction({
       name: 'calculateNextActionRole',
       data: {
@@ -58,7 +62,7 @@ exports.main = async (event, context) => {
       totalNextActionRoleCount,
       inGraveyardNextActionRole
     } = result;
-    console.log("[LOG] :", result);
+    console.log("[LOG] After getNext:", result);
 
     return db.collection('rooms').doc(roomId).update({
       data: {

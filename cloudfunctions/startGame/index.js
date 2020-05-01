@@ -21,11 +21,14 @@ exports.main = async (event, context) => {
       roleAssignment
     }
   });
+  
   const {
     nextActionRole,
     totalNextActionRoleCount,
     inGraveyardNextActionRole
   }  = result;
+  
+  console.log("[LOG] After getNext:", result);
 
   return db.collection('rooms').doc(roomId).update({
     data: {
