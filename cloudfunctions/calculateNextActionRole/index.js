@@ -30,7 +30,10 @@ exports.main = async (event, context) => {
 
   var nextActionRole = null;
   var totalNextActionRoleCount = 0;
-  var inGraveyardNextActionRole = null;
+  var inGraveyardNextActionRole = {
+    role: null,
+    pendingTime: 0
+  };
 
   for (var i = currIdx + 1; i < ACTION_ORDER.length; i++) {
     const role = ACTION_ORDER[i];

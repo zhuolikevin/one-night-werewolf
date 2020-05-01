@@ -43,7 +43,7 @@ exports.main = async (event, context) => {
     });
   } else {
     // 所有该角色都已经take action了
-    const { result } = cloud.callFunction({
+    const { result } = await cloud.callFunction({
       name: 'calculateNextActionRole',
       data: {
         currentRole,
@@ -55,15 +55,23 @@ exports.main = async (event, context) => {
       nextActionRole,
       totalNextActionRoleCount,
       inGraveyardNextActionRole
-    }  = result;
+    } = result;
+    console.log("[LOG] :", result);
 
     return db.collection('rooms').doc(roomId).update({
       data: {
         game: {
+          // 更新角色分配
           roleAssignment: roleAssignmentAC,
+          // 只有当行动角色和墓地假行动角色都没有的时候才切换到voting
           status: nextActionRole === null && inGraveyardNextActionRole === null ? 'voting' : 'gaming',
+          // 更新当前行动角色
           currentRole: nextActionRole,
+          // 更新当前角色行动总数
           currentRoleCount: totalNextActionRoleCount,
+          // 更新该角色已行动人数
+          currentRoleActionedCount: 0,
+          // 更新墓地假行动角色
           inGraveyardNextActionRole,
         },
       },

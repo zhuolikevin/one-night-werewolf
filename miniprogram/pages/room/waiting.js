@@ -113,7 +113,7 @@ Page({
           var currentGame = snapshot.docs[0].game
           var currentRole = currentGame.currentRole
           if (currentRole == null) {
-            currentRole = currentGame.graveyardCurrenRole
+            currentRole = currentGame.inGraveyardNextActionRole.role;
           }
 
           _this.setData({
@@ -572,11 +572,13 @@ Page({
    */
   simulateAction: function(game) {
 
-    time = game.graveyardCurrenRole.pendingTime
+    time = game.inGraveyardNextActionRole.pendingTime
     var _this = tihs
 
+    console.log("[before delay] ", time);
     _this.delay(time).then(
       res => {
+        console.log("delayed call");
         wx.cloud.callFunction({
           name: 'takeAction',
           data: {
