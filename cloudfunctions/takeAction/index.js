@@ -48,7 +48,7 @@ exports.main = async (event, context) => {
       name: 'calculateNextActionRole',
       data: {
         // 如果当前角色为null，就用墓地假角色算下一个行动角色
-        currentRole: currentRole || inGraveyardNextActionRoleBC,
+        currentRole: currentRole || inGraveyardNextActionRoleBC.role,
         totalRoles,
         roleAssignment: roleAssignmentAC
       }
@@ -67,7 +67,7 @@ exports.main = async (event, context) => {
           // 更新角色分配
           roleAssignment: roleAssignmentAC,
           // 只有当行动角色和墓地假行动角色都没有的时候才切换到voting
-          status: nextActionRole === null && inGraveyardNextActionRole === null ? 'voting' : 'gaming',
+          status: nextActionRole === null && inGraveyardNextActionRole.role === null ? 'voting' : 'gaming',
           // 更新当前行动角色
           currentRole: nextActionRole,
           // 更新当前角色行动总数

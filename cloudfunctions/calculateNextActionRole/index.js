@@ -26,6 +26,8 @@ exports.main = async (event, context) => {
     "revealer"
   ];
 
+  console.log("[LOG] currentRole: ", currentRole);
+
   if (currentRole === null) {
     // 开始游戏，第一次请求行动角色，此角色一定为狼（场上或墓地家角色）
     const wolves = ["wereWolf", "alphaWolf", "mysticWolf"];
@@ -71,6 +73,7 @@ exports.main = async (event, context) => {
 
   for (var i = currIdx + 1; i < ACTION_ORDER.length; i++) {
     const role = ACTION_ORDER[i];
+    console.log("[LOG] check role: ", role);
     if (totalRoles[role] > 0) {
       if (initGraveyardRoles.includes(role) && !initPlayerRoles.includes(role)) {
         inGraveyardNextActionRole = {
@@ -84,6 +87,8 @@ exports.main = async (event, context) => {
       break;
     }
   }
+
+  console.log("[LOG] nextActionRole: ", nextActionRole);
 
   return {
     nextActionRole,
