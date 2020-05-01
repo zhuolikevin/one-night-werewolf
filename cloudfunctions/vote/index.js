@@ -22,7 +22,8 @@ exports.main = async (event, context) => {
 
   // 计算通过票玩家总数
   var totalVotedPlayers = 0;
-  for (const p in playerResults) {
+  for (const idx in playerResults) {
+    const p = playerResults[idx];
     totalVotedPlayers += p.length;
   }
   totalVotedPlayers += graveyardResults.length;
@@ -70,7 +71,8 @@ function calculateWinner(playerResults, graveyardResults, roleAssignment) {
 
   if (graveyardBeingVotedCount >= playerBeingVotedMaxCount) {
     // 投墓地的最多。如果投墓地的和投场上某个玩家的一样多，视为投墓地
-    for (const r in currentPlayerRoles) {
+    for (const idx in currentPlayerRoles) {
+      const r = currentPlayerRoles[idx];
       // 只要场上现在有狼，狼人阵营就获胜
       if (wolves.includes(r)) {
         return "狼人阵营";
@@ -88,7 +90,8 @@ function calculateWinner(playerResults, graveyardResults, roleAssignment) {
     }
 
     // 平票, 只要有一个被投的人不是狼，就是狼人赢
-    for (const r in beingVotedPlayerRoles) {
+    for (const idx in beingVotedPlayerRoles) {
+      const r = beingVotedPlayerRoles[idx];
       if (!wolves.includes(r)) {
         return "狼人阵营";
       }

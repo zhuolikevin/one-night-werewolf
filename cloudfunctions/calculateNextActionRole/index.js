@@ -32,11 +32,17 @@ exports.main = async (event, context) => {
     // 开始游戏，第一次请求行动角色，此角色一定为狼（场上或墓地家角色）
     const wolves = ["wereWolf", "alphaWolf", "mysticWolf"];
     var wolfCount = 0;
-    for (const r in initPlayerRoles) {
+
+    console.log("[LOG] initPlayerRoles: ", initPlayerRoles);
+
+    for (const idx in initPlayerRoles) {
+      const r = initPlayerRoles[idx];
       if (wolves.includes(r)) {
         wolfCount++;
       }
     }
+
+    console.log("[LOG] wolfCount: ", wolfCount);
 
     if (wolfCount > 0) {
       // 有任何一种狼在场上，第一个行动角色一定是wereWolf
@@ -61,6 +67,8 @@ exports.main = async (event, context) => {
       }
     };
   }
+
+  console.log("[LOG] fuck???");
 
   // 第二次及以后请求角色
   const currIdx = ACTION_ORDER.findIndex(x => x === currentRole);

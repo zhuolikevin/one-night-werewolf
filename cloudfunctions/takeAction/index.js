@@ -12,6 +12,10 @@ exports.main = async (event, context) => {
   const { roleSettings, game: gameBC } = data;
   const { totalRoles } = roleSettings;
 
+  if (gameBC.status === 'fuck') {
+    return "stop!";
+  }
+
   const {
     currentRole,
     currentRoleCount: currentRoleCountBC,
