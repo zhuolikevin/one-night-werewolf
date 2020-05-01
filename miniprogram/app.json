@@ -3,9 +3,7 @@
     "pages/index/index",
     "pages/setup/create",
     "pages/setup/join",
-    "pages/room/waiting",
-    "pages/room/gaming",
-    "pages/room/result"
+    "pages/room/waiting"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",
