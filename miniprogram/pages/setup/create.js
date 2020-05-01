@@ -187,6 +187,12 @@ Page({
       drunk + mason + villager;
   },
 
+  calculateWolfRoles: function() {
+    const { wereWolf, alphaWolf, minion, mysticWolf, seer,
+      apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager } = this.data;
+    return wereWolf + alphaWolf + mysticWolf;
+  },
+
   onCreateRoom: function() {
     var totalPlayers = this.data.totalPlayer;
 
@@ -196,6 +202,12 @@ Page({
     }
 
     var totalRolesCount = this.calculateTotalRoles()
+    var totalWolfRolesCount = this.calculateWolfRoles()
+
+    if (totalWolfRolesCount == 0) {
+      this.handleAlert("请从普通狼人，头狼和狼先知中选择至少一个角色", 'warning')
+      return
+    }
 
     const needRoles = parseInt(totalPlayers) + 3
     if (totalRolesCount != needRoles) {

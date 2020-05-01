@@ -8,6 +8,7 @@
     "i-row": "../../dist/row/index",
     "i-avatar": "../../dist/avatar/index",
     "i-modal": "../../dist/modal/index",
-    "i-message": "../../dist/message/index"
+    "i-message": "../../dist/message/index",
+    "i-badge": "../../dist/badge/index"
   }
 }

@@ -39,11 +39,11 @@ Page({
   onLoad: function (options) {
 
     // For test
-    // options.roomId = "da5f6ae65eaa432c001c5f6a564f4e6c"
-    // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
-    this.setData({
-      status: "voting"
-    });
+    options.roomId = "5feb61565eab9320004057805c2d4eff"
+    app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
+    // this.setData({
+    //   status: "gaming"
+    // });
 
     this.delay(1000)
 
@@ -177,6 +177,7 @@ Page({
         // 更新room数据
         _this.setData({
           room: snapshot.docs[0],
+          isReady: snapshot.docs[0].players[_this.data.mySeat].isReady
         });
 
       },
@@ -605,7 +606,7 @@ Page({
             game: game
           },
           success: res => {
-            console.log("Take Action" + res)
+            console.log(res)
             takeAction = true
             return
           }

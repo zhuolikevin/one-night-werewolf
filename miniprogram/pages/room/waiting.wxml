@@ -9,7 +9,9 @@
         <i-grid-item>
           <view class="selected-{{selectedPlayers[index * 3 + index2]}}" style="padding: 10%;" 
           hidden="{{room.totalPlayer <= index * 3 + index2}}">
+          <i-badge count="{{seats[index][index2].isReady ? 1 : 0}}">
             <i-avatar src="{{seats[index][index2].avatarUrl}}" size="large" shape="square" ></i-avatar>
+          </i-badge>
             <text class="userinfo-nickname">\n{{(seats[index][index2].nickName || "空座位") +'('+ (index * 3 + index2)+')'}}</text>
           </view>
         </i-grid-item>
