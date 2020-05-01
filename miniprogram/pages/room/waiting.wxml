@@ -58,29 +58,30 @@
 
   <view class="role">
     <text >你本局游戏的初始角色是: \n</text>
-    <text style="color:#ce749d; font-weight:700">{{convert.convertFull(role)}}</text>
+    <text class="role-text">{{convert.convertFull(role)}}</text>
   </view>
 </view>
 
 <view wx:if="{{status == 'gaming'}}" class="hint">
-    <text style="color:#ce749d; font-weight:700">{{convert.convertFull(currentRole)}}</text> 
+    <text class="role-text">{{convert.convertFull(currentRole)}}</text> 
     <text> 正在行动！</text>
   <view wx:if="{{role == currentRole || convert.convertGroup(role) == currentRole}}" style="text-align: center; margin-left: 10%; margin-right:10%" > 
-    <text style="color:#7497ce; font-weight:700">{{currentStep}}</text>
+    <text class="hint-text">{{currentStep}}</text>
     <button type="default" bindtap="onAction" style="margin-top: 5%">确定</button>
   </view>
 </view>
 
 <view wx:if="{{status == 'voting'}}" class="hint">
-  <text style="color:#7497ce; font-weight:700">{{currentStep}}</text>
+  <text class="hint-text">{{currentStep}}</text>
   <button type="default" bindtap="onVote" style="margin-top: 5%">投票</button>
 </view>
 
 <view wx:if="{{status == 'result'}}" class="hint">
-  <view wx:for="{{result}}" wx:for-index="index" wx:for-item="item">
-    <text>{{item.voter}}</text>
-    <text>' => '</text>
-    <text>{{item.player}}</text>
+  <text class="role-text" style="margin-bottom: 10%">{{winner}}</text><text>赢啦!\n</text>
+  <view wx:for="{{results}}" wx:for-index="index" wx:for-item="item" style="margin-top: 2%">
+    <text class="hint-text">{{item.voter}}</text>
+    <text> 投给了 </text>
+    <text class="hint-text">{{item.player}}</text>
   </view>
     <button type="default" bindtap="onRestart" style="margin-top: 5%">再来一局</button>
 </view>

@@ -27,7 +27,9 @@ Page({
     lastSelected: null,
     // 狼人
     onlyWolf: false,
-    results: []
+    // 结束
+    results: [],
+    winner: "",
   },
   
 
@@ -39,9 +41,9 @@ Page({
     // For test
     // options.roomId = "da5f6ae65eaa432c001c5f6a564f4e6c"
     // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
-    // this.setData({
-    //   status: "gaming"
-    // });
+    this.setData({
+      status: "voting"
+    });
 
     this.delay(1000)
 
@@ -164,6 +166,9 @@ Page({
           
           // 投票结束，显示投票结果
           if (snapshot.docs[0].game.status == "result") {
+            _this.setData({
+              status: "result"
+            })
             _this.updateStep(snapshot.docs[0].game.winner)
             _this.showResult(snapshot.docs[0].game)
           }
@@ -663,23 +668,43 @@ Page({
 
     var results = []
 
-    for (var i = 0; i < game.playerResults; i++) {
-      results.push({
-        player: i,
-        voter: game.playerResults[i],
-      })
+    // For test
+    game.playerResults = [[2, 3], [], [3, 4]]
+    game.graveyardResults = [[2, 3], [], [3, 4]]
+    game.winner = "wereWolf"
+
+    for (var i = 0; i < game.playerResults.length; i++) {
+      if (game.playerResults[i].length > 0) {
+        var voter = ""
+        for (var j = 0; j < game.playerResults[i].length; j++) {
+          voter += game.playerResults[i][j] + "号 "
+        }
+        results.push({
+          player: i + "号玩家",
+          voter: voter
+        })
+      }
     }
 
-    for (var i = 0; i < game.graveyardResults; i++) {
-      results.push({
-        player: i,
-        voter: game.graveyardResults[i],
-      })
+    for (var i = 0; i < game.graveyardResults.length; i++) {
+      if (game.playerResults[i].length > 0) {
+        var voter = ""
+        for (var j = 0; j < game.graveyardResults[i].length; j++) {
+          voter += game.graveyardResults[i][j] + "号 "
+        }
+        results.push({
+          player: i + "号墓地",
+          voter: voter
+        })
+      }
     }
 
     this.setData({
-      results: results
+      results: results,
+      winner: game.winner
     })
+
+    console.log(this.data.results)
 
   },
 

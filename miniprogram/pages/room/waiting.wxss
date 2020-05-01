@@ -27,5 +27,16 @@
 .hint {
   text-align: center; 
   margin-left: 10%; 
-  margin-right:10%
+  margin-right:10%;
 }
+
+.role-text {
+  color:#ce749d; 
+  font-weight: 700;
+}
+
+.hint-text {
+  color:#7497ce; 
+  font-weight: 700;
+}
+
