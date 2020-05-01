@@ -26,6 +26,7 @@ exports.main = async (event, context) => {
     return db.collection('rooms').doc(roomId).update({
       data: {
         game: {
+          ...gameBC,
           // 更新角色分配
           roleAssignment: roleAssignmentAC,
           // 继续游戏状态
@@ -62,6 +63,7 @@ exports.main = async (event, context) => {
     return db.collection('rooms').doc(roomId).update({
       data: {
         game: {
+          ...gameBC,
           // 更新角色分配
           roleAssignment: roleAssignmentAC,
           // 只有当行动角色和墓地假行动角色都没有的时候才切换到voting

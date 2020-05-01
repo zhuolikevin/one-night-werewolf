@@ -6,6 +6,9 @@ cloud.init()
 // 云函数入口函数
 exports.main = async (event, context) => {
   const { currentRole, totalRoles, roleAssignment } = event;
+  const { graveyardRoles, playerRoles } = roleAssignment; 
+  const initGraveyardRoles = graveyardRoles.map(role => role.init);
+  const initPlayerRoles = playerRoles.map(role => role.init);
 
   const ACTION_ORDER = [
     "wereWolf",
@@ -57,11 +60,7 @@ exports.main = async (event, context) => {
   }
 
   // 第二次及以后请求角色
-  const { graveyardRoles, playerRoles } = roleAssignment; 
-  const initGraveyardRoles = graveyardRoles.map(role => role.init);
-  const initPlayerRoles = playerRoles.map(role => role.init);
-
-  const currIdx = currentRole ? ACTION_ORDER.findIndex(x => x === currentRole) : -1;
+  const currIdx = ACTION_ORDER.findIndex(x => x === currentRole);
 
   var nextActionRole = null;
   var totalNextActionRoleCount = 0;

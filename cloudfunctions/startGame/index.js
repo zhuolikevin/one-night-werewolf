@@ -8,7 +8,7 @@ const db = cloud.database();
 exports.main = async (event, context) => {
   const { roomId } = event;
   const { data } = await db.collection('rooms').doc(roomId).get();
-  const { roleSettings } = data;
+  const { roleSettings, game } = data;
   const { totalRoles } = roleSettings;
 
   const roleAssignment = assignRoles(totalRoles);
@@ -30,6 +30,7 @@ exports.main = async (event, context) => {
   return db.collection('rooms').doc(roomId).update({
     data: {
       game: {
+        ...game,
         roleAssignment,
         status: 'gaming',
         currentRole: nextActionRole,
