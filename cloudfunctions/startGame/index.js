@@ -8,7 +8,7 @@ const db = cloud.database();
 exports.main = async (event, context) => {
   const { roomId } = event;
   const { data } = await db.collection('rooms').doc(roomId).get();
-  const { roleSettings, game } = data;
+  const { roleSettings, game, players } = data;
   const { totalRoles } = roleSettings;
 
   const roleAssignment = assignRoles(totalRoles);
@@ -16,15 +16,16 @@ exports.main = async (event, context) => {
   const { result } = await cloud.callFunction({
     name: 'calculateNextActionRole',
     data: {
-      currentRole: null,
+      currentRole: "START", // START是第一次计算行动玩家flag
       totalRoles,
-      roleAssignment
+      roleAssignment,
+      players
     }
   });
   
   const {
     nextActionRole,
-    totalNextActionRoleCount,
+    waitingForActionOpenIds,
     inGraveyardNextActionRole
   }  = result;
   
@@ -37,8 +38,7 @@ exports.main = async (event, context) => {
         roleAssignment,
         status: 'gaming',
         currentRole: nextActionRole,
-        currentRoleCount: totalNextActionRoleCount, // 当前在场上的该角色人数（除去墓地里的）
-        currentRoleActionedCount: 0, // 该角色已经行动的人数
+        waitingForActionOpenIds,
         inGraveyardNextActionRole,
       },
     },
