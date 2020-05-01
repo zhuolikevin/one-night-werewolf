@@ -28,6 +28,7 @@ Page({
     // 狼人
     onlyWolf: false,
     // 结束
+    voted: false,
     results: [],
     winner: "",
   },
@@ -175,9 +176,16 @@ Page({
         }
 
         // 更新room数据
+        var isReady = false
+        for (var i = 0; i < snapshot.docs[0].players.length; i++) {
+          if (snapshot.docs[0].players[i].seatNumber == _this.data.mySeat) {
+            isReady = snapshot.docs[0].players[i].isReady
+          }
+        }
         _this.setData({
           room: snapshot.docs[0],
-          isReady: snapshot.docs[0].players[_this.data.mySeat].isReady
+          isReady: isReady,
+          status: snapshot.docs[0].game.status
         });
 
       },
@@ -657,6 +665,10 @@ Page({
         success: res => {
           console.log(res)
         }
+      })
+
+      _this.setData({
+        voted: true
       })
     }
 
