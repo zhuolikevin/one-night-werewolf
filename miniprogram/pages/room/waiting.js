@@ -27,6 +27,7 @@ Page({
     lastSelected: null,
     // 狼人
     onlyWolf: false,
+    results: []
   },
   
 
@@ -53,10 +54,14 @@ Page({
 
     db.collection('rooms').doc(options.roomId).get({
       success: res => {
-        _this.setData({ room: res.data});
+        _this.setData({ 
+          room: res.data
+        });
         this.calculateSeats(res.data.players, res.data.totalPlayer);
       }
     });
+
+    // TODO: 退出再进入房间显示已准备
 
     // watch current room change (e.g other players readiness)
     const watcher = db.collection('rooms').doc(options.roomId).watch({
@@ -153,6 +158,15 @@ Page({
               _this.updateStep("揭示者揭露了" + snapshot.docs[0].game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(snapshot.docs[0].game.revealer.role))
             }
           }     
+        }
+
+        if (_this.data.status == "voting") {
+          
+          // 投票结束，显示投票结果
+          if (snapshot.docs[0].game.status == "result") {
+            _this.updateStep(snapshot.docs[0].game.winner)
+            _this.showResult(snapshot.docs[0].game)
+          }
         }
 
         // 更新room数据
@@ -572,13 +586,13 @@ Page({
    */
   simulateAction: function(game) {
 
-    time = game.inGraveyardNextActionRole.pendingTime
-    var _this = tihs
+    const time = game.inGraveyardNextActionRole.pendingTime
+    var _this = this
 
     console.log("[before delay] ", time);
     _this.delay(time).then(
       res => {
-        console.log("delayed call");
+        var takeAction = false
         wx.cloud.callFunction({
           name: 'takeAction',
           data: {
@@ -586,9 +600,14 @@ Page({
             game: game
           },
           success: res => {
-            console.log(res)
+            console.log("Take Action" + res)
+            takeAction = true
+            return
           }
         })
+        if (takeAction) {
+          return
+        }
       }
     )
 
@@ -599,6 +618,7 @@ Page({
    */
   onVote: function() {
     var game = this.data.room.game
+    var _this = this
 
     var selectedPlayers = []
     var selectedGraveyard = []
@@ -617,9 +637,49 @@ Page({
       this.handleAlert("请（只）选择一个玩家或一张底牌", 'warning')
     } else {
       // TODO：发送投票结果
-      console.log(selectedPlayers[0])
-      console.log(selectedGraveyard[0])
+
+      const selectedPlayer = selectedPlayers.length > 0 ? selectedPlayers[0] : -1;
+      const selectedGraveyardRole = selectedGraveyard.length > 0 ? selectedGraveyard[0] : -1;
+
+      wx.cloud.callFunction({
+        name: 'vote',
+        data: {
+          roomId: _this.data.room._id,
+          selectedPlayer: selectedPlayer,
+          selectedGraveyard: selectedGraveyardRole
+        },
+        success: res => {
+          console.log(res)
+        }
+      })
     }
+
+  },
+
+  /**
+   * 显示投票结果
+   */
+  showResult: function (game) {
+
+    var results = []
+
+    for (var i = 0; i < game.playerResults; i++) {
+      results.push({
+        player: i,
+        voter: game.playerResults[i],
+      })
+    }
+
+    for (var i = 0; i < game.graveyardResults; i++) {
+      results.push({
+        player: i,
+        voter: game.graveyardResults[i],
+      })
+    }
+
+    this.setData({
+      results: results
+    })
 
   },
 
@@ -663,6 +723,35 @@ Page({
       selectedPlayers: selectedPlayers,
       selectedGraveyard: selectedGraveyard
     });
+
+  },
+
+  /**
+   * 再来一局
+   */
+  onRestart: function() {
+    this.setData({
+      me: "",
+      mySeat: null,
+      room: {},
+      seats: [],
+      status: "waiting",
+      enableStart: false,
+      isReady: false,
+      role: "role",
+      currentRole: "currentRole",
+      selectedPlayers: [],
+      selectedGraveyard: [],
+      currentStep: "",
+      seatToPlayersName: [],
+      // 女巫
+      round: 0,
+      lastSelected: null,
+      // 狼人
+      onlyWolf: false,
+      results: []
+    })
+    // TODO: 数据库改waiting
 
   },
   
