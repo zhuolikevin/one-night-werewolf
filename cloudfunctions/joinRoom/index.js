@@ -19,6 +19,8 @@ exports.main = async (event, context) => {
   }
 
   const { totalPlayer, players, _id: roomId } = rooms[0];
+  console.log("[LOG] players: ", players);
+  console.log("[LOG] openId: ", openId);
 
   if (players.map(player => player.openId).includes(openId)) {
     // player already in room

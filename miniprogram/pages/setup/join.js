@@ -94,6 +94,7 @@ Page({
       },
       success: res => {
         const { success, message, roomId } = res.result
+        console.log(res)
         if (!success) {
           this.handleAlert(message, 'warning')
           return

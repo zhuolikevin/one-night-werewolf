@@ -25,12 +25,14 @@ exports.main = async (event, context) => {
     // 所有该角色没有全部take action
     return db.collection('rooms').doc(roomId).update({
       data: {
-        roleAssignment: roleAssignmentAC,
-        status: 'gaming',
-        currentRole,
-        currentRoleCount: currentRoleCountBC, // 当前在场上的该角色人数（除去墓地里的）
-        currentRoleActionedCount: currentRoleActionedCountBC + 1, // 该角色已经行动的人数
-        inGraveyardNextRoles: inGraveyardNextRolesBC,
+        game: {
+          roleAssignment: roleAssignmentAC,
+          status: 'gaming',
+          currentRole,
+          currentRoleCount: currentRoleCountBC, // 当前在场上的该角色人数（除去墓地里的）
+          currentRoleActionedCount: currentRoleActionedCountBC + 1, // 该角色已经行动的人数
+          inGraveyardNextRoles: inGraveyardNextRolesBC,
+        }
       },
     });
   } else {
@@ -40,7 +42,7 @@ exports.main = async (event, context) => {
     return db.collection('rooms').doc(roomId).update({
       data: {
         game: {
-          roleAssignment,
+          roleAssignment: roleAssignmentAC,
           status: nextActionRole === null ? 'voting' : 'gaming',
           currentRole: nextActionRole,
           inGraveyardNextRoles,
@@ -53,6 +55,7 @@ exports.main = async (event, context) => {
 function getNextActionRole(currentRole, totalRoles, roleAssignment) {
   const ACTION_ORDER = [
     "wereWolf",
+    "alphaWolf",
     "mysticWolf",
     "minion",
     "mason",

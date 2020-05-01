@@ -18,7 +18,7 @@
   </view>
 </i-grid>
 
-<view wx:if="{{!start}}" style="text-align: center">
+<view wx:if="{{status == 'waiting'}}" style="text-align: center">
   <text>\n房间号【{{room.roomNumber}}】| 房间总人数: {{room.totalPlayer}}</text>
   <view>
     <text>\n</text>
@@ -55,20 +55,25 @@
       </view>
     </i-row> 
   </i-grid>
+
   <view class="role">
-    <text >你本局游戏的角色是: \n</text>
+    <text >你本局游戏的初始角色是: \n</text>
     <text style="color:#ce749d; font-weight:700">{{convert.convertFull(role)}}</text>
   </view>
-  <view wx:if="{{convert.convertGroup(role) != convert.convertGroup(currentRole)}}" style="text-align: center; margin-left: 10%; margin-right: 10%" >
+</view>
+
+<view wx:if="{{status == 'gaming'}}" style="text-align: center; margin-left: 10%; margin-right:10%">
     <text style="color:#ce749d; font-weight:700">{{convert.convertFull(currentRole)}}</text> 
     <text> 正在行动！</text>
-    <text style="color:#7497ce; font-weight:700">{{currentStep}}</text>
-  </view>
-  <view wx:else style="text-align: center; margin-left: 10%; margin-right:10%" > 
-    <text>该你行动啦! </text>
+  <view wx:if="{{role == currentRole || convert.convertGroup(role) == currentRole}}" style="text-align: center; margin-left: 10%; margin-right:10%" > 
     <text style="color:#7497ce; font-weight:700">{{currentStep}}</text>
     <button type="default" bindtap="onAction" style="margin-top: 5%">确定</button>
   </view>
+</view>
+
+<view wx:if="{{status == 'voting'}}" style="text-aligh: center; margin-left: 10%; margin-right: 10%">
+  <text style="color:#7497ce; font-weight:700">{{currentStep}}</text>
+  <button type="default" bindtap="onVote" style="margin-top: 5%">投票</button>
 </view>
 
 <i-message id="message" />

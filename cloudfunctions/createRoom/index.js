@@ -14,7 +14,7 @@ exports.main = async (event, context) => {
   return db.collection('rooms').add({
     data: {
       _openid: openId,
-      totalPlayer,
+      totalPlayer: parseInt(totalPlayer),
       roomNumber,
       players: [{
         openId,
