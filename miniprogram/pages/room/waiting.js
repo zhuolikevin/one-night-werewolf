@@ -45,6 +45,7 @@ Page({
     // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
     this.setData({
       simulated: [],
+      // status: "voting"
     });
     // For test
 
@@ -63,8 +64,6 @@ Page({
         this.calculateSeats(res.data.players, res.data.totalPlayer);
       }
     });
-
-    // TODO: 退出再进入房间显示已准备
 
     // watch current room change (e.g other players readiness)
     const watcher = db.collection('rooms').doc(options.roomId).watch({
@@ -154,9 +153,11 @@ Page({
 
           // （所有人）监听游戏中自己角色
           if (currentGame.currentRole == _this.data.role) {
-            _this.setData({
-              actioned: false
-            })
+            if (_this.data.role == "alphaWolf" || _this.data.role == "mysticWolf") {
+              _this.setData({
+                actioned: false
+              })
+            }
             _this.setHint(currentGame)
           }
 
@@ -174,17 +175,24 @@ Page({
           }     
         }
 
-        if (_this.data.status == "voting") {
+        if (_this.data.status == "voting" || _this.data.status == "results") {
           
           // 投票结束，显示投票结果
-          if (snapshot.docs[0].game.status == "result") {
+          if (snapshot.docs[0].game.status == "results") {
             _this.setData({
-              status: "result"
+              status: "results"
             })
             _this.updateStep(snapshot.docs[0].game.winner)
             _this.showResult(snapshot.docs[0].game)
           }
         }
+
+        // 再来一局
+        if (_this.data.status == "result") {
+          if (snapshot.docs[0].game.status == "waiting") {
+            _this.onInit()
+          }
+        } 
 
         // 更新room数据
         var isReady = false
@@ -707,16 +715,11 @@ Page({
 
     var results = []
 
-    // For test
-    game.playerResults = [[2, 3], [], [3, 4]]
-    game.graveyardResults = [[2, 3], [], [3, 4]]
-    game.winner = "wereWolf"
-
-    for (var i = 0; i < game.playerResults.length; i++) {
-      if (game.playerResults[i].length > 0) {
+    for (var i = 0; i < game.results.playerResults.length; i++) {
+      if (game.results.playerResults[i].length > 0) {
         var voter = ""
-        for (var j = 0; j < game.playerResults[i].length; j++) {
-          voter += game.playerResults[i][j] + "号 "
+        for (var j = 0; j < game.results.playerResults[i].length; j++) {
+          voter += game.results.playerResults[i][j] + "号 "
         }
         results.push({
           player: i + "号玩家",
@@ -725,22 +728,21 @@ Page({
       }
     }
 
-    for (var i = 0; i < game.graveyardResults.length; i++) {
-      if (game.playerResults[i].length > 0) {
-        var voter = ""
-        for (var j = 0; j < game.graveyardResults[i].length; j++) {
-          voter += game.graveyardResults[i][j] + "号 "
-        }
-        results.push({
-          player: i + "号墓地",
-          voter: voter
-        })
-      }
+    var voter = ""
+    for (var i = 0; i < game.results.graveyardResults.length; i++) {
+      voter += game.results.graveyardResults[i] + "号 "
     }
+    if (voter == "") {
+      voter = "没有人"
+    }
+    results.push({
+      player: "墓地",
+      voter: voter
+    })
 
     this.setData({
       results: results,
-      winner: game.winner
+      winner: game.results.winner
     })
 
     console.log(this.data.results)
@@ -794,6 +796,29 @@ Page({
    * 再来一局
    */
   onRestart: function() {
+
+    var roomId = this.data.room._id
+    const db = wx.cloud.database();
+    db.collection('rooms').doc(roomId).update({
+      data: {
+        game: {
+          status: "waiting",
+          results: {
+            votedOpenIds: [],
+            votes: [],
+          },
+        }
+      }
+    });
+  },
+
+  /**
+   * 初始化所有数据
+   */
+  onInit: function() {
+
+    var roomId = this.data.room._id
+
     this.setData({
       me: "",
       mySeat: null,
@@ -807,15 +832,33 @@ Page({
       selectedPlayers: [],
       selectedGraveyard: [],
       currentStep: "",
+      simulated: [],
+      actioned: false,
       // 女巫
       round: 0,
       lastSelected: null,
       // 狼人
       onlyWolf: false,
-      results: []
+      // 结束
+      voted: false,
+      results: [],
+      winner: "",
     })
-    // TODO: 数据库改waiting
 
+    this.setData({
+      me: app.globalData.openid
+    });
+
+    const db = wx.cloud.database();
+
+    db.collection('rooms').doc(roomId).get({
+      success: res => {
+        _this.setData({
+          room: res.data
+        });
+        this.calculateSeats(res.data.players, res.data.totalPlayer);
+      }
+    });
   },
   
   delay: function(milSec) {

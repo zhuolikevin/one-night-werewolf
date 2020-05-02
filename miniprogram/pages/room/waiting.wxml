@@ -78,7 +78,7 @@
   <button type="default" disabled="{{voted}}" bindtap="onVote" style="margin-top: 5%">{{voted == true ? '已投票' : '投票'}}</button>
 </view>
 
-<view wx:if="{{status == 'result'}}" class="hint">
+<view wx:if="{{status == 'results'}}" class="hint">
   <text class="role-text" style="margin-bottom: 10%">{{winner}}</text><text>赢啦!\n</text>
   <view wx:for="{{results}}" wx:for-index="index" wx:for-item="item" style="margin-top: 2%">
     <text class="hint-text">{{item.voter}}</text>

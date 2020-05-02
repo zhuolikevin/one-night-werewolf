@@ -36,7 +36,8 @@ exports.main = async (event, context) => {
   // 再读一次数据，检查是否收到了所有投票结果
   const { data: dataUpdated } = await db.collection('rooms').doc(roomId).get();
   const { game } = dataUpdated;
-  const { totalPlayer, roleAssignment, results } = game;
+  const { totalPlayer } = data
+  const { roleAssignment, results } = game;
   const { votes, votedOpenIds } = results;
 
   // 还没有收到所有投票
@@ -48,9 +49,9 @@ exports.main = async (event, context) => {
   }
 
   // 所有玩家都投过票了，计算投票结果和赢家
-  let playerResults = [];
+  let playerResults = new Array();
   for (let i = 0; i < totalPlayer; i++) {
-    playerResults.push([]);
+    playerResults[i] = new Array();
   }
   let graveyardResults = [];
   votes.forEach(({ seatNumber, selectedPlayer }) => {
