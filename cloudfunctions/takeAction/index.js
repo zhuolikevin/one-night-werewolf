@@ -24,9 +24,10 @@ exports.main = async (event, context) => {
     roleAssignment: roleAssignmentAC,
   } = gameAC;
 
-  // 如果收到的请求不是desiredRole或者该openId不在等待回复的list里
-  const desiredRole = currentRole || inGraveyardNextActionRoleBC.role;
-  if (desiredRole != senderRole || !waitingForActionOpenIdsBC.includes(senderOpenId)) {
+  console.log("[INPUT PARAMS] :", event);
+
+  // 如果收到的请求不是currentRole或者该openId不在等待回复的list里
+  if (!isCorrectActionPlayer(currentRole, senderRole, waitingForActionOpenIdsBC, senderOpenId)) {
     return {
       success: false,
       message: "不是你行动的时间"
@@ -104,5 +105,27 @@ exports.main = async (event, context) => {
         },
       },
     });
+  }
+}
+
+function isCorrectActionPlayer(
+  currentRole,
+  senderRole,
+  desiredOpenIds,
+  senderOpenId
+) {
+  if (!desiredOpenIds.includes(senderOpenId)) {
+    return false;
+  }
+  const wolves = ["wereWolf", "alphaWolf", "mysticWolf"];
+  if (currentRole === "wereWolf") {
+    // 当前行动角色是狼阵营，则sender可以是所有狼阵营
+    return wolves.includes(senderRole);
+  } else if (currentRole != null) {
+    // 当前行动角色是场上玩家
+    return desiredRole === senderRole;
+  } else {
+    // 当前行动角色在墓地里，接收的是前端simulate后的请求
+    return true;
   }
 }

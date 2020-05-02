@@ -17,7 +17,7 @@ exports.main = async (event, context) => {
   // openId数组，index是座位号，不是players的index
   const playerOpenIds = getOpenIds(players);
 
-  console.log("[LOG] currentRole: ", currentRole);
+  console.log("[INPUT PARAMS] :", event);
 
   if (!currentRole) {
     throw new Error(`currentRole: ${currentRole}, currentRole is required!`)

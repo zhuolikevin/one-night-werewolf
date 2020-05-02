@@ -11,6 +11,8 @@ exports.main = async (event, context) => {
   const { roleSettings, game, players } = data;
   const { totalRoles } = roleSettings;
 
+  console.log("[INPUT PARAMS] :", event);
+
   const roleAssignment = assignRoles(totalRoles);
 
   const { result } = await cloud.callFunction({
