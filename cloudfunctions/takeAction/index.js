@@ -22,6 +22,7 @@ exports.main = async (event, context) => {
   } = gameBC;
   const {
     roleAssignment: roleAssignmentAC,
+    revealer, // 揭示者行动的时候会有此项，需要存到数据库
   } = gameAC;
 
   console.log("[INPUT PARAMS] :", event);
@@ -41,7 +42,8 @@ exports.main = async (event, context) => {
     data: {
       game: {
         roleAssignment: roleAssignmentAC,
-        waitingForActionOpenIds: flipOpenId
+        waitingForActionOpenIds: flipOpenId,
+        revealer: revealer & { ...revealer }
       }
     },
   });

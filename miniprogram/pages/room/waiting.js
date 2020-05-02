@@ -364,7 +364,7 @@ Page({
         this.updateStep("请选择任意两名玩家的卡牌并交换");
         break;
       case "insomniac": 
-        this.updateStep("你的身份是: " + players[this.data.mySeat].currentRole);
+        this.updateStep("你的身份是: " + players[this.data.mySeat].current);
         break;
       case "drunk": 
         this.updateStep("请选择一张底牌并盗用此身份");
