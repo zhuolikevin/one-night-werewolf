@@ -69,7 +69,7 @@
     <text> 正在行动！</text>
   <view wx:if="{{role == currentRole || convert.convertGroup(role) == currentRole}}" style="text-align: center; margin-left: 10%; margin-right:10%" > 
     <text class="hint-text">{{currentStep}}</text>
-    <button type="default" bindtap="onAction" style="margin-top: 5%">确定</button>
+    <button disabled="{{actioned}}" type="default" bindtap="onAction" style="margin-top: 5%">确定</button>
   </view>
 </view>
 

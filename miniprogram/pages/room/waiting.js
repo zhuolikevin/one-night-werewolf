@@ -22,6 +22,7 @@ Page({
     selectedGraveyard: [],
     currentStep: "",
     simulated: [],
+    actioned: false,
     // 女巫
     round: 0,
     lastSelected: null,
@@ -45,8 +46,7 @@ Page({
     this.setData({
       simulated: [],
     });
-
-    this.delay(1000)
+    // For test
 
     this.setData({
       me: app.globalData.openid
@@ -75,6 +75,10 @@ Page({
         if (snapshot.docs.length == 0) {
           return
         }
+
+        _this.setData({
+          room: snapshot.docs[0]
+        })
 
         // 游戏还没开始
         if (_this.data.status == "waiting") {
@@ -114,19 +118,24 @@ Page({
           }
         // 游戏已经开始
         } 
+
+        var currentGame = snapshot.docs[0].game
+        var currentRole
+        if (currentGame != null) {
+          if (snapshot.docs[0].game.status == "gaming" || snapshot.docs[0].game.status == "voting" || snapshot.docs[0].game.status == "results") {
+            currentRole = currentGame.currentRole
+            if (currentRole == null) {
+              currentRole = currentGame.inGraveyardNextActionRole.role;
+            }
+            _this.setData({
+              role: currentGame.roleAssignment.playerRoles[_this.data.mySeat].init,
+              currentRole: currentRole,
+              status: snapshot.docs[0].game.status,
+            });
+          }
+        }
         
         if (_this.data.status == "gaming") {
-
-          var currentGame = snapshot.docs[0].game
-          var currentRole = currentGame.currentRole
-          if (currentRole == null) {
-            currentRole = currentGame.inGraveyardNextActionRole.role;
-          }
-
-          _this.setData({
-            role: currentGame.roleAssignment.playerRoles[_this.data.mySeat].init,
-            currentRole: currentRole
-          });
 
           // （所有人）监听游戏中的其余角色
           if (currentGame.currentRole != _this.data.role) {
@@ -145,6 +154,9 @@ Page({
 
           // （所有人）监听游戏中自己角色
           if (currentGame.currentRole == _this.data.role) {
+            _this.setData({
+              actioned: false
+            })
             _this.setHint(currentGame)
           }
 
@@ -292,7 +304,7 @@ Page({
     var players = game.roleAssignment.playerRoles;
 
     switch (game.currentRole) {
-      case "wereWolf": {
+      case "wereWolf": 
         var wolf = "";
         for (var i = 0; i < players.length; i++) {
           if (i != this.data.mySeat && (players[i].init == "wereWolf" || players[i].init == "alphaWolf" || players[i].init == "mysticWolf")) {
@@ -308,54 +320,48 @@ Page({
           this.updateStep("你的狼同伴是: " + wolf);
         }
         break;
-      }
-      case "minion": {
+      case "minion": 
         var wolf = "";
         for (var i = 0; i < players.length; i++) {
           if (players[i].init == "wereWolf" || players[i].init == "alphaWolf" || players[i].init == "mysticWolf") {
             wolf += i + "号 ";
           }
         }
-        this.updateStep("狼人是: " + wolf);
+        if (wolf == "") {
+          this.updateStep("场上没有狼人");
+        } else {
+          this.updateStep("狼人是: " + wolf);
+        }
         break;
-      }
-      case "alphaWolf": {
+      case "alphaWolf": 
         this.updateStep("请选择一名玩家将他变成狼人");
         break;
-      }
-      case "mysticWolf" || "seer": {
+      case "seer":
+      case "mysticWolf":
         this.updateStep("请选择一名玩家查看它的身份");
         break;
-      }
-      case "apprenticeSeer": {
+      case "apprenticeSeer": 
         this.updateStep("请选择查看一张底牌");
         break;
-      }
-      case "witch": {
+      case "witch": 
         this.updateStep("请选择查看一张底牌并和任意一名玩家的卡牌交换");
         break;
-      }
-      case "revealer": {
+      case "revealer": 
         this.updateStep("请翻开任意一名玩家的卡牌");
         break;
-      }
-      case "robber": {
+      case "robber": 
         this.updateStep("请选择查看任意一名玩家的卡牌并盗用他的身份");
         break;
-      }
-      case "troublemaker": {
+      case "troublemaker": 
         this.updateStep("请选择任意两名玩家的卡牌并交换");
         break;
-      }
-      case "insomniac": {
+      case "insomniac": 
         this.updateStep("你的身份是: " + players[this.data.mySeat].currentRole);
         break;
-      }
-      case "drunk": {
+      case "drunk": 
         this.updateStep("请选择一张底牌并盗用此身份");
         break;
-      }
-      case "mason": {
+      case "mason": 
         var mason = ""
         for (var i = 0; i < players.length; i++) {
           if (i != this.data.mySeat) {
@@ -370,7 +376,6 @@ Page({
           this.updateStep("另外的守夜人是: " + mason);
         }
         break;
-      }
     }
   },
 
@@ -410,6 +415,7 @@ Page({
   onAction: function() {
     
     var game = this.data.room.game
+    var update = true
 
     var selectedPlayers = []
     var selectedGraveyard = []
@@ -428,7 +434,10 @@ Page({
 
       // 狼人 || 爪牙 || 失眠者 || 守夜人
       // 夜晚除了看牌外无(选牌)操作
-      case ("wereWolf" || "minion" || "insomniac" || "mason"): {
+      case "wereWolf":
+      case "minion":
+      case "insomniac":
+      case "mason": 
 
         // 如果是独狼可以查看一张底牌
         if (this.data.onlyWolf && (this.data.role == "wereWolf" || this.data.role == "alphaWolf" || this.data.role == "mysticWolf")) {
@@ -446,10 +455,10 @@ Page({
           }
         }
         break;
-      }
+      
       // 头狼
       // 指定一名玩家成为狼人
-      case "alphaWolf": {
+      case "alphaWolf": 
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择一名玩家哦", 'warning')
           return;
@@ -457,25 +466,25 @@ Page({
           game.roleAssignment.playerRoles[selectedPlayers[0]].current = "wereWolf"
         }
         break;
-      }
+      
       // 预言家 || 狼预言家
       // 查看场上一名玩家身份
-      case "mysticWolf" || "seer": {
+      case "mysticWolf":
+      case "seer": 
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
             this.handleAlert("请（只）选择一名玩家哦", 'warning')
-          return;
-          } else if (selectedPlayers[0] == this.data.mySeat) {
+            return;
+        } else if (selectedPlayers[0] == this.data.mySeat) {
             this.handleAlert("请不要选择自己哦", 'warning')
-          return;
-          return;
-          } else {
+            return;
+        } else {
             this.updateStep("这名玩家的身份是: " + this.convertFull(game.roleAssignment.playerRoles[selectedPlayers[0]].current))
-          }
+        }
         break;
-      }
+      
       // 学徒预言家
       // 查看一张底牌
-      case "apprenticeSeer": {
+      case "apprenticeSeer": 
         if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
           this.handleAlert("请（只）选择一张底牌哦", 'warning')
           return;
@@ -483,10 +492,9 @@ Page({
           this.updateStep("这张底牌的身份是: " + this.convertFull(game.roleAssignment.graveyardRoles[selectedGraveyard[0]].current))
         }
         break;
-      }
       // 女巫
       // Round0: 查看一张底牌 & Round1: 将这张牌与任意一名玩家的卡牌交换
-      case "witch": {
+      case "witch": 
         if (this.data.round == 0) {
           if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
             this.handleAlert("请（只）选择一张底牌哦", 'warning')
@@ -496,6 +504,7 @@ Page({
             this.setData({
               lastSelected: selectedGraveyard[0]
             });
+            update = false
           }
         }
         if (this.data.round == 1) {
@@ -510,12 +519,11 @@ Page({
         }
         var newData = parseInt(this.data.round) + 1
         this.setData({
-          round: newDataT
+          round: newData
         });
         break;
-      }
       // 揭示者
-      case "revealer": {
+      case "revealer": 
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择一名玩家哦", 'warning')
           return;
@@ -536,10 +544,9 @@ Page({
           }
         }
         break;
-      }
       // 强盗
       // 查看场上一名玩家身份并将自己的卡牌与他交换
-      case "robber": {
+      case "robber": 
         if (selectedPlayers.length != 1 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择一名玩家哦", 'warning')
           return;
@@ -550,10 +557,9 @@ Page({
           game.roleAssignment.playerRoles[this.data.mySeat].current = playerRole
         }
         break;
-      }
       // 捣蛋鬼
       // 交换任意两名玩家的卡牌
-      case "troublemaker": {
+      case "troublemaker": 
         if (selectedPlayers.length != 2 || selectedGraveyard.length > 0) {
           this.handleAlert("请（只）选择二名玩家哦", 'warning')
           return;
@@ -563,10 +569,9 @@ Page({
           game.roleAssignment.playerRoles[selectedPlayers[1]].current = playerRole
         }
         break;
-      }
       // 酒鬼
       // 将自己的卡牌和底牌中的一张交换
-      case "drunk": {
+      case "drunk": 
         if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
           this.handleAlert("请（只）选择一张底牌", 'warning')
           return;
@@ -576,23 +581,35 @@ Page({
           game.roleAssignment.playerRoles[this.data.mySeat].current = graveyardRole
         }
         break;
-      }
     }
 
-    // TODO: update game in database
-    var _this = this
-    console.log(game)
-    wx.cloud.callFunction({
-      name: 'takeAction',
-      data: {
-        roomId: _this.data.room._id,
-        game: game,
-        myRole: _this.data.role
-      },
-      success: res => {
-        console.log(res)
-      }
+    if (this.data.role == "witch" && this.data.round == 1) {
+      return
+    } 
+
+    this.setData({
+      actioned: true
     })
+
+    // TODO: update game in database
+    this.delay(5000).then(
+      res => {
+        var _this = this
+        console.log(game)
+        wx.cloud.callFunction({
+          name: 'takeAction',
+          data: {
+            roomId: _this.data.room._id,
+            game: game,
+            myRole: _this.data.role
+          },
+          success: res => {
+            console.log(res)
+          }
+        })
+      }
+    )
+
   },
 
   /**
@@ -605,6 +622,12 @@ Page({
         return
       }
     }
+
+    var simulated = this.data.simulated
+    simulated.push(this.data.currentRole)
+    this.setData({
+      simulated: simulated,
+    })
 
     console.log("[current role]", this.data.currentRole)
     console.log("[simulated]", this.data.simulated)
@@ -622,17 +645,11 @@ Page({
             game: game
           },
           success: res => {
-            var simulated = _this.data.simulated
-            simulated.push(_this.data.currentRole) 
-            _this.setData({
-              simulated: simulated,
-            })
             return
           }
         })
       }
     )
-    
 
   },
 
