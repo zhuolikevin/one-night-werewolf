@@ -115,9 +115,9 @@ Page({
               role: snapshot.docs[0].game.roleAssignment.playerRoles[_this.data.mySeat].init,
             });
           }
-        // 游戏已经开始
         } 
 
+        // 游戏已经开始
         var currentGame = snapshot.docs[0].game
         var currentRole
         if (currentGame != null) {
@@ -159,20 +159,20 @@ Page({
               })
             }
             _this.setHint(currentGame)
-          }
-
-          // 监听进入投票环节
-          if (snapshot.docs[0].game.status == "voting") {
-            _this.updateStep("")
-            _this.setData({
-              status: "voting"
-            })
-            // 如果有被揭示者翻开的牌
-            if (snapshot.docs[0].game.revealer != null) {
-              _this.updateStep("揭示者揭露了" + snapshot.docs[0].game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(snapshot.docs[0].game.revealer.role))
-            }
-          }     
+          }   
         }
+
+        // 监听进入投票环节
+        if (snapshot.docs[0].game.status == "voting") {
+          _this.updateStep("")
+          _this.setData({
+            status: "voting"
+          })
+          // 如果有被揭示者翻开的牌
+          if (snapshot.docs[0].game.revealer != null) {
+            _this.updateStep("揭示者揭露了" + snapshot.docs[0].game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(snapshot.docs[0].game.revealer.role))
+          }
+        }  
 
         // 投票结束，显示投票结果
         if (snapshot.docs[0].game.status == "results") {
@@ -800,6 +800,7 @@ Page({
       data: {
         game: {
           status: "waiting",
+          revealer: null,
           results: {
             votedOpenIds: [],
             votes: [],
