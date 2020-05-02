@@ -43,7 +43,7 @@ exports.main = async (event, context) => {
       game: {
         roleAssignment: roleAssignmentAC,
         waitingForActionOpenIds: flipOpenId,
-        revealer: revealer & { ...revealer }
+        revealer: revealer && { ...revealer }
       }
     },
   });
