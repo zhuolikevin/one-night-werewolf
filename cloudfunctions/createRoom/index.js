@@ -6,15 +6,21 @@ cloud.init({
 
 const db = cloud.database();
 exports.main = async (event, context) => {
-  const { totalPlayer, totalRoles, richUserInfo, userInfo } = event;
+  const {
+    totalPlayer: totalPlayerString,
+    totalRoles,
+    richUserInfo,
+    userInfo
+  } = event;
   const { openId } = userInfo;
+  const totalPlayer = parseInt(totalPlayerString);
   const roomNumber = generateRoomNumber();
   const seatNumber = generateSeatNumber(totalPlayer, []);
 
   return db.collection('rooms').add({
     data: {
       _openid: openId,
-      totalPlayer: parseInt(totalPlayer),
+      totalPlayer,
       roomNumber,
       players: [{
         openId,
@@ -29,9 +35,10 @@ exports.main = async (event, context) => {
       game: {
         status: 'waiting',
         results: {
-          playerResults: new Array(parseInt(totalPlayer)).fill([]),
-          graveyardResults: [],
-          winner: null
+          // 形式为 [{seatNumber: 0, selectedPlayer: 1}]，表示一个投票结果，0号位投给1号位，-1表示投给墓地
+          votes: [],
+          // 投过票的openId
+          votedOpenIds: []
         }
       }
     }

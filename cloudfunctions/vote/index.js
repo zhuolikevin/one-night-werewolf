@@ -5,42 +5,67 @@ cloud.init({
 });
 
 const db = cloud.database();
+const _ = db.command;
 exports.main = async (event, context) => {
-  const { roomId, seatNumber, selectedPlayer } = event;
-
+  // 从前端拿到的信息
+  const { roomId, seatNumber, selectedPlayer, userInfo } = event;
+  const { openId: senderOpenId } = userInfo;
+  // 从数据库拿到的信息
   const { data } = await db.collection('rooms').doc(roomId).get();
-  const { game } = data;
+
+  // 已经投过票
+  if (data.game.results.votedOpenIds.includes(senderOpenId)) {
+    return {
+      success: false,
+      message: "您已经投过票了"
+    };
+  }
+
+  // 未投过票，更新投票数据
+  await db.collection('rooms').doc(roomId).update({
+    data: {
+      game: {
+        results: {
+          votes: _.push({ seatNumber, selectedPlayer }),
+          votedOpenIds: _.push(senderOpenId)
+        }
+      }
+    }
+  });
+
+  // 再读一次数据，检查是否收到了所有投票结果
+  const { data: dataUpdated } = await db.collection('rooms').doc(roomId).get();
+  const { game } = dataUpdated;
   const { totalPlayer, roleAssignment, results } = game;
-  const { playerResults, graveyardResults } = results;
+  const { votes, votedOpenIds } = results;
 
-  if (selectedPlayer != -1) {
-    // 投票给了场上玩家
-    playerResults[selectedPlayer].push(seatNumber);
-  } else {
-    // 投票给了墓地
-    graveyardResults.push(seatNumber);
+  // 还没有收到所有投票
+  if (votes.length < totalPlayer || votedOpenIds.length < totalPlayer) {
+    return {
+      success: true,
+      message: "投票成功"
+    };
   }
 
-  // 计算通过票玩家总数
-  var totalVotedPlayers = 0;
-  for (const idx in playerResults) {
-    const p = playerResults[idx];
-    totalVotedPlayers += p.length;
+  // 所有玩家都投过票了，计算投票结果和赢家
+  let playerResults = [];
+  for (let i = 0; i < totalPlayer; i++) {
+    playerResults.push([]);
   }
-  totalVotedPlayers += graveyardResults.length;
-
-  const winner = totalPlayer === totalVotedPlayers ? calculateWinner(playerResults, graveyardResults, roleAssignment) : null;
+  let graveyardResults = [];
+  votes.forEach(({ seatNumber, selectedPlayer }) => {
+    if (selectedPlayer == -1) {
+      graveyardResults.push(seatNumber);
+    } else {
+      playerResults[selectedPlayer].push(seatNumber);
+    }
+  });
+  const winner = calculateWinner(playerResults, graveyardResults, roleAssignment);
 
   return db.collection('rooms').doc(roomId).update({
     data: {
       game: {
-        ...game,
-        roleAssignment,
-        status: totalPlayer === totalVotedPlayers ? 'result' : 'voting',
-        currentRole: null,
-        currentRoleCount: 0,
-        currentRoleActionedCount: 0,
-        inGraveyardNextActionRole: { role: null, pendingTime: 0 },
+        status: 'results',
         results: {
           playerResults,
           graveyardResults,
