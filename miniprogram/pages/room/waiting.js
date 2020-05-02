@@ -186,6 +186,7 @@ Page({
         // 再来一局
         if (_this.data.status == "results") {
           console.log(snapshot.docs[0].game.status)
+
           if (snapshot.docs[0].game.status == "waiting") {
             _this.onInit()
           }
