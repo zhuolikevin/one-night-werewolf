@@ -34,6 +34,7 @@ exports.main = async (event, context) => {
       },
       game: {
         status: 'waiting',
+        revealer: {},
         results: {
           // 形式为 [{seatNumber: 0, selectedPlayer: 1}]，表示一个投票结果，0号位投给1号位，-1表示投给墓地
           votes: [],

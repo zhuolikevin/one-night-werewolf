@@ -169,7 +169,7 @@ Page({
             status: "voting"
           })
           // 如果有被揭示者翻开的牌
-          if (snapshot.docs[0].game.revealer != null) {
+          if (JSON.stringify(snapshot.docs[0].game.revealer) !== '{}') {
             _this.updateStep("揭示者揭露了" + snapshot.docs[0].game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(snapshot.docs[0].game.revealer.role))
           }
         }  
@@ -796,11 +796,12 @@ Page({
 
     var roomId = this.data.room._id
     const db = wx.cloud.database();
+    const _ = db.command;
     db.collection('rooms').doc(roomId).update({
       data: {
         game: {
           status: "waiting",
-          revealer: null,
+          revealer: _.set({}),
           results: {
             votedOpenIds: [],
             votes: [],
