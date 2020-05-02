@@ -168,27 +168,24 @@ Page({
               status: "voting"
             })
             // 如果有被揭示者翻开的牌
-            console.log(snapshot.docs[0].game.revealer)
             if (snapshot.docs[0].game.revealer != null) {
               _this.updateStep("揭示者揭露了" + snapshot.docs[0].game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(snapshot.docs[0].game.revealer.role))
             }
           }     
         }
 
-        if (_this.data.status == "voting" || _this.data.status == "results") {
-          
-          // 投票结束，显示投票结果
-          if (snapshot.docs[0].game.status == "results") {
+        // 投票结束，显示投票结果
+        if (snapshot.docs[0].game.status == "results") {
             _this.setData({
               status: "results"
             })
             _this.updateStep(snapshot.docs[0].game.winner)
             _this.showResult(snapshot.docs[0].game)
-          }
         }
 
         // 再来一局
-        if (_this.data.status == "result") {
+        if (_this.data.status == "results") {
+          console.log(snapshot.docs[0].game.status)
           if (snapshot.docs[0].game.status == "waiting") {
             _this.onInit()
           }
@@ -643,7 +640,6 @@ Page({
     const time = game.inGraveyardNextActionRole.pendingTime
     var _this = this
 
-    console.log("[before delay] ", time);
     _this.delay(time).then(
       res => {
         wx.cloud.callFunction({
@@ -817,7 +813,10 @@ Page({
    */
   onInit: function() {
 
-    var roomId = this.data.room._id
+    console.log("Init")
+    var options = {
+      roomId: this.data.room._id
+    }
 
     this.setData({
       me: "",
@@ -845,20 +844,7 @@ Page({
       winner: "",
     })
 
-    this.setData({
-      me: app.globalData.openid
-    });
-
-    const db = wx.cloud.database();
-
-    db.collection('rooms').doc(roomId).get({
-      success: res => {
-        _this.setData({
-          room: res.data
-        });
-        this.calculateSeats(res.data.players, res.data.totalPlayer);
-      }
-    });
+    this.onLoad(options)
   },
   
   delay: function(milSec) {

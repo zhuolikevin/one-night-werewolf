@@ -85,6 +85,11 @@
     <text> 投给了 </text>
     <text class="hint-text">{{item.player}}</text>
   </view>
+  <view wx:for="{{room.game.roleAssignment.playerRoles}}" wx:for-index="index" wx:for-item="item" style="margin-top: 2%">
+    <text>{{index}}</text>
+    <text>号当前角色是 </text>
+    <text class="role-text">{{convert.convertFull(item.current)}}</text>
+  </view>
     <button type="default" bindtap="onRestart" style="margin-top: 5%">再来一局</button>
 </view>
 
