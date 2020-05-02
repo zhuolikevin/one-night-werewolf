@@ -78,7 +78,7 @@ exports.main = async (event, context) => {
       waitingForActionOpenIds: allPlayerOpenIds,
       inGraveyardNextActionRole: {
         role: "wereWolf",
-        pendingTime: generateRandomActionTime(10000, 20000)
+        pendingTime: generateRandomActionTime(5000, 10000)
       }
     };
   }
@@ -99,7 +99,7 @@ exports.main = async (event, context) => {
       if (initGraveyardRoles.includes(role) && !initPlayerRoles.includes(role)) {
         inGraveyardNextActionRole = {
           role,
-          pendingTime: generateRandomActionTime(5000, 15000)
+          pendingTime: generateRandomActionTime(5000, 10000)
         };
         // 如果下一个是墓地假角色，需要等待所有玩家返回
         playerOpenIds.forEach(openId => {
