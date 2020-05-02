@@ -26,86 +26,85 @@ exports.main = async (event, context) => {
 
   console.log("[INPUT PARAMS] :", event);
 
-  // 如果收到的请求不是currentRole或者该openId不在等待回复的list里
+  // 如果收到的请求不是currentRole，或者该openId不在等待回复的object里，或者在但已经操作过了
   if (!isCorrectActionPlayer(currentRole, senderRole, waitingForActionOpenIdsBC, senderOpenId)) {
     return {
       success: false,
-      message: "不是你行动的时间"
+      message: "不该你行动"
     };
   }
 
-  // 收到的请求是desiredRole，且还没接收到过这个openId
-  let newWaitingForActionOpenIds = [];
-  waitingForActionOpenIdsBC.forEach(waitingOpenId => {
-    if (waitingOpenId != senderOpenId) {
-      newWaitingForActionOpenIds.push(waitingOpenId);
-    }
+  // 只更新当前openId对应的行动
+  let flipOpenId = {};
+  flipOpenId[senderOpenId] = true;
+  const updateRes = await db.collection('rooms').doc(roomId).update({
+    data: {
+      game: {
+        roleAssignment: roleAssignmentAC,
+        waitingForActionOpenIds: flipOpenId
+      }
+    },
   });
 
-  if (newWaitingForActionOpenIds.length > 0) {
-    // 所有该角色没有全部take action
-    return db.collection('rooms').doc(roomId).update({
-      data: {
-        game: {
-          ...gameBC,
-          // 更新角色分配
-          roleAssignment: roleAssignmentAC,
-          // 继续游戏状态
-          status: 'gaming',
-          // 当前行动角色不变
-          currentRole,
-          // 更新等待回复的角色list
-          waitingForActionOpenIds: newWaitingForActionOpenIds,
-          // 墓地假行动角色不变
-          inGraveyardNextActionRole: inGraveyardNextActionRoleBC,
-        }
-      },
-    });
-  } else {
-    // 所有该角色都已经take action了
-    console.log("[LOG] Before getNext: ", {
-      currentRole,
-      inGraveyardNextActionRoleBC,
-    });
-    const { result } = await cloud.callFunction({
-      name: 'calculateNextActionRole',
-      data: {
-        // 如果当前角色为null，就用墓地假角色算下一个行动角色
-        currentRole: currentRole || inGraveyardNextActionRoleBC.role,
-        totalRoles,
-        roleAssignment: roleAssignmentAC,
-        players
-      }
-    });
-    const {
-      nextActionRole,
-      waitingForActionOpenIds,
-      inGraveyardNextActionRole
-    } = result;
-    console.log("[LOG] After getNext:", result);
+  console.log("[LOG] updateRes: ", updateRes);
 
-    const shouldEndGame = nextActionRole === null && inGraveyardNextActionRole.role === null;
-    console.log("[LOG] After nextActionRole === null:", nextActionRole === null);
-    console.log("[LOG] After inGraveyardNextActionRole.role === null:", inGraveyardNextActionRole.role === null);
+  // 更改完以后再拿一次数据
+  const { data } = await db.collection('rooms').doc(roomId).get();
+  const { game: gameUpdated } = data;
+  const { waitingForActionOpenIds: waitingForActionOpenIdsUpdated } = gameUpdated;
 
-    return db.collection('rooms').doc(roomId).update({
-      data: {
-        game: {
-          ...gameBC,
-          // 更新角色分配
-          roleAssignment: roleAssignmentAC,
-          // 只有当行动角色和墓地假行动角色都没有的时候才切换到voting
-          status: shouldEndGame ? 'voting' : 'gaming',
-          // 更新当前行动角色
-          currentRole: nextActionRole,
-          // 更新等待请求的openId list
-          waitingForActionOpenIds,
-          // 更新墓地假行动角色
-          inGraveyardNextActionRole,
-        },
-      },
-    });
+  for (const openId in waitingForActionOpenIdsUpdated) {
+    if (!waitingForActionOpenIdsUpdated[openId]) {
+      // 还有未收到的角色回复
+      return {
+        success: true,
+        message: "操作成功"
+      };
+    }
   }
+
+  // 所有该角色都已经take action了
+  console.log("[LOG] Before getNext: ", {
+    currentRole,
+    inGraveyardNextActionRoleBC,
+  });
+  const { result } = await cloud.callFunction({
+    name: 'calculateNextActionRole',
+    data: {
+      // 如果当前角色为null，就用墓地假角色算下一个行动角色
+      currentRole: currentRole || inGraveyardNextActionRoleBC.role,
+      totalRoles,
+      roleAssignment: roleAssignmentAC,
+      players
+    }
+  });
+  const {
+    nextActionRole,
+    waitingForActionOpenIds,
+    inGraveyardNextActionRole
+  } = result;
+  console.log("[LOG] After getNext:", result);
+
+  const shouldEndGame = nextActionRole === null && inGraveyardNextActionRole.role === null;
+  console.log("[LOG] After nextActionRole === null:", nextActionRole === null);
+  console.log("[LOG] After inGraveyardNextActionRole.role === null:", inGraveyardNextActionRole.role === null);
+
+  return db.collection('rooms').doc(roomId).update({
+    data: {
+      game: {
+        // 更新角色分配
+        roleAssignment: roleAssignmentAC,
+        // 只有当行动角色和墓地假行动角色都没有的时候才切换到voting
+        status: shouldEndGame ? 'voting' : 'gaming',
+        // 更新当前行动角色
+        currentRole: nextActionRole,
+        // 更新等待请求的openId list
+        waitingForActionOpenIds,
+        // 更新墓地假行动角色
+        inGraveyardNextActionRole,
+      },
+    },
+  });
 }
 
 function isCorrectActionPlayer(
@@ -114,7 +113,8 @@ function isCorrectActionPlayer(
   desiredOpenIds,
   senderOpenId
 ) {
-  if (!desiredOpenIds.includes(senderOpenId)) {
+  // 当前角色不在等待列表里，或者在但已经操作过
+  if (!desiredOpenIds.hasOwnProperty(senderOpenId) || desiredOpenIds[senderOpenId]) {
     return false;
   }
   const wolves = ["wereWolf", "alphaWolf", "mysticWolf"];

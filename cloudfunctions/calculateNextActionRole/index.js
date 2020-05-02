@@ -42,20 +42,20 @@ exports.main = async (event, context) => {
   if (currentRole === "START") {
     // 开始游戏，第一次请求行动角色，此角色一定为狼（场上或墓地家角色）
     const wolves = ["wereWolf", "alphaWolf", "mysticWolf"];
-    let wolfOpenIds = [];
+    let wolfOpenIds = {};
 
     console.log("[LOG] initPlayerRoles: ", initPlayerRoles);
 
     for (const idx in initPlayerRoles) {
       const r = initPlayerRoles[idx];
       if (wolves.includes(r)) {
-        wolfOpenIds.push(playerOpenIds[idx]);
+        wolfOpenIds[playerOpenIds[idx]] = false;
       }
     }
 
     console.log("[LOG] wolfOpenIds: ", wolfOpenIds);
 
-    if (wolfOpenIds.length > 0) {
+    if (Object.keys(wolfOpenIds).length > 0) {
       // 有任何一种狼在场上，第一个行动角色一定是wereWolf
       return {
         nextActionRole: "wereWolf",
@@ -68,10 +68,14 @@ exports.main = async (event, context) => {
     }
 
     // 所有狼都在墓地
+    let allPlayerOpenIds = {}
+    playerOpenIds.forEach(openId => {
+      allPlayerOpenIds[openId] = false;
+    });
     return {
       nextActionRole: null,
       // 如果下一个是墓地假角色，需要等待所有玩家返回
-      waitingForActionOpenIds: playerOpenIds,
+      waitingForActionOpenIds: allPlayerOpenIds,
       inGraveyardNextActionRole: {
         role: "wereWolf",
         pendingTime: generateRandomActionTime(10000, 20000)
@@ -79,13 +83,11 @@ exports.main = async (event, context) => {
     };
   }
 
-  console.log("[LOG] fuck???");
-
   // 第二次及以后请求角色
   const currIdx = ACTION_ORDER.findIndex(x => x === currentRole);
 
   var nextActionRole = null;
-  var waitingForActionOpenIds = [];
+  var waitingForActionOpenIds = {};
   var inGraveyardNextActionRole = {
     role: null,
     pendingTime: 0
@@ -100,14 +102,16 @@ exports.main = async (event, context) => {
           pendingTime: generateRandomActionTime(5000, 15000)
         };
         // 如果下一个是墓地假角色，需要等待所有玩家返回
-        waitingForActionOpenIds = playerOpenIds;
+        playerOpenIds.forEach(openId => {
+          waitingForActionOpenIds[openId] = false;
+        });
       } else {
         nextActionRole = role;
 
         for (const idx in initPlayerRoles) {
           const r = initPlayerRoles[idx];
           if (r === nextActionRole) {
-            waitingForActionOpenIds.push(playerOpenIds[idx]);
+            waitingForActionOpenIds[playerOpenIds[idx]] = false;
           }
         }
       }
