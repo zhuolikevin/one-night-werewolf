@@ -49,8 +49,8 @@ exports.main = async (event, context) => {
   console.log("[LOG] updateRes: ", updateRes);
 
   // 更改完以后再拿一次数据
-  const { data } = await db.collection('rooms').doc(roomId).get();
-  const { game: gameUpdated } = data;
+  const { data: dataUpdated } = await db.collection('rooms').doc(roomId).get();
+  const { game: gameUpdated } = dataUpdated;
   const { waitingForActionOpenIds: waitingForActionOpenIdsUpdated } = gameUpdated;
 
   for (const openId in waitingForActionOpenIdsUpdated) {
@@ -123,7 +123,7 @@ function isCorrectActionPlayer(
     return wolves.includes(senderRole);
   } else if (currentRole != null) {
     // 当前行动角色是场上玩家
-    return desiredRole === senderRole;
+    return currentRole === senderRole;
   } else {
     // 当前行动角色在墓地里，接收的是前端simulate后的请求
     return true;
