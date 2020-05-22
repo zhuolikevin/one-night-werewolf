@@ -13,6 +13,13 @@ exports.main = async (event, context) => {
 
   console.log("[INPUT PARAMS] :", event);
 
+  if (game.status === 'gaming') {
+    return {
+      success: false,
+      message: "游戏已经开始了！"
+    };
+  }
+
   const roleAssignment = assignRoles(totalRoles);
 
   const { result } = await cloud.callFunction({
