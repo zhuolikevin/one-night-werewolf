@@ -113,12 +113,18 @@ function calculateWinner(playerResults, graveyardResults, roleAssignment) {
 
     if (beingVotedPlayerRoles.length === 1) {
       // 没有平票
+      if (beingVotedPlayerRoles[0] === 'tanner') {
+        return "皮匠";
+      }
       return wolves.includes(beingVotedPlayerRoles[0]) ? "好人阵营" : "狼人阵营";
     }
 
-    // 平票, 只要有一个被投的人不是狼，就是狼人赢
+    // 平票, 只要有皮匠，就是皮匠赢；否则，只要有一个被投的人不是狼，就是狼人赢
     for (const idx in beingVotedPlayerRoles) {
       const r = beingVotedPlayerRoles[idx];
+      if (r === 'tanner') {
+        return "皮匠";
+      }
       if (!wolves.includes(r)) {
         return "狼人阵营";
       }
