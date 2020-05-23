@@ -100,7 +100,7 @@
 <view wx:if="{{room.game.status == 'gaming'}}" class="hint">
     <text class="role-text">{{convert.convertFull(currentRole)}}</text> 
     <text> 正在行动！</text>
-  <view wx:if="{{myRole == currentRole || convert.convertGroup(myRrole) == currentRole}}" style="text-align: center; margin-left: 10%; margin-right:10%" > 
+  <view wx:if="{{myRole == currentRole || convert.convertGroup(myRole) == currentRole}}" style="text-align: center; margin-left: 10%; margin-right:10%" > 
     <text class="hint-text">{{currentStep}}</text>
     <button disabled="{{actioned}}" type="default" bindtap="onAction" style="margin-top: 5%">确定</button>
   </view>

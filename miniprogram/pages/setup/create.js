@@ -221,13 +221,13 @@ Page({
       return
     }
 
-    const { totalPlayer, wereWolf, alphaWolf, minion, mysticWolf, seer, apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager } = this.data;
+    const { totalPlayer, wereWolf, alphaWolf, minion, mysticWolf, seer, apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, tanner, villager } = this.data;
 
     wx.cloud.callFunction({
       name: 'createRoom',
       data: {
         totalPlayer,
-        totalRoles: { wereWolf, alphaWolf, minion, mysticWolf, seer, apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager },
+        totalRoles: { wereWolf, alphaWolf, minion, mysticWolf, seer, apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, tanner, villager },
         richUserInfo: app.globalData.userInfo,
       },
       success: res => {

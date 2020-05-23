@@ -31,7 +31,7 @@ exports.main = async (event, context) => {
   if (!isCorrectActionPlayer(currentRole, senderRole, waitingForActionOpenIdsBC, senderOpenId)) {
     return {
       success: false,
-      message: "不该你行动"
+      message: "不该你行动, 当前角色：" + currentRole + '你的角色：' + senderRole,
     };
   }
 

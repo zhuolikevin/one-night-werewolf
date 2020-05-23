@@ -48,6 +48,7 @@ var convert = {
         return "村民[" + value + "]";
       }
     }
+    return "出错啦"
   },
   convertFromEnglishToTask: function(value) {
     switch (value) {
@@ -99,6 +100,11 @@ var convert = {
     else return value
   },
   convertToRoleOrder: function (roles, currentRole) {
+
+    if (roles == null || roles.length == 0) {
+      return
+    }
+
     var ACTION_ORDER = [
       "wereWolf",
       "alphaWolf",

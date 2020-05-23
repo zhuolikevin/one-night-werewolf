@@ -48,6 +48,7 @@ Page({
     this.setData({
       myOpenId: app.globalData.openid
     });
+    app.globalData.actioned = false;
 
     const _this = this;
     const db = wx.cloud.database();
@@ -83,9 +84,8 @@ Page({
         if (_this.data.room.game.status == "waiting") {
 
           // 刷新房间信息
-          _this.onInit()
+          _this.onInit(snapshot.docs[0])
           _this.setData({
-            room: snapshot.docs[0],
             myOpenId: app.globalData.openid
           })
           for (let i = 0; i < _this.data.room.players.length; i++) {
@@ -149,18 +149,18 @@ Page({
             }
           // （所有人）监听自己角色行动
           } else {
-            // 如果之前行动过又退出房间了
-            if (app.globalData.actioned) {
-              _this.updateStep("你已经行动过啦!")
-              _this.updateDatabase(currentGame, _this.data.myRole, 0)
-              return
-            }
             // 如果是非普通狼人的狼人牌
             if (_this.data.myRole == "alphaWolf" || _this.data.myRole == "mysticWolf") {
               _this.setData({
                 actioned: false
               })
               app.globalData.actioned = false
+            }
+            // 如果之前行动过又退出房间了
+            if (app.globalData.actioned) {
+              _this.updateStep("你已经行动过啦!")
+              _this.updateDatabase(currentGame, _this.data.myRole, 0)
+              return
             }
             _this.setHint(currentGame)
           }
@@ -170,6 +170,13 @@ Page({
         if (_this.data.room.game.status == "voting") {
           _this.updateStep("")
 
+          // （所有人）更新自己的初始角色
+          if (_this.data.myRole == "") {
+            _this.setData({
+              myRole: currentGame.roleAssignment.playerRoles[_this.data.mySeat].init,
+            });
+          }
+
           // 如果有被揭示者翻开的牌
           if (JSON.stringify(_this.data.room.game.revealer) !== '{}') {
             _this.updateStep("揭示者揭露了" + _this.data.room.game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(_this.data.room.game.revealer.role))
@@ -178,6 +185,14 @@ Page({
 
         // 显示结果阶段
         if (_this.data.room.game.status == "results") {
+
+          // （所有人）更新自己的初始角色
+          if (_this.data.myRole == "") {
+            _this.setData({
+              myRole: currentGame.roleAssignment.playerRoles[_this.data.mySeat].init,
+            });
+          }
+          
           _this.updateStep(_this.data.room.game.winner)
           _this.showResult(_this.data.room.game)
         }
@@ -292,13 +307,9 @@ Page({
    */
   setHint: function(game) {
 
-    if (game.currentRole == null) {
-      return
-    }
-
     var players = game.roleAssignment.playerRoles;
 
-    switch (game.currentRole) {
+    switch (this.data.currentRole) {
       case "wereWolf": 
         var wolf = "";
         for (var i = 0; i < players.length; i++) {
@@ -433,7 +444,7 @@ Page({
       case "mason": 
 
         // 如果是独狼可以查看一张底牌
-        if (this.data.onlyWolf && (this.data.role == "wereWolf" || this.data.role == "alphaWolf" || this.data.role == "mysticWolf")) {
+        if (this.data.onlyWolf && (this.data.myRole == "wereWolf" || this.data.myRole == "alphaWolf" || this.data.myRole == "mysticWolf")) {
           // 玩家
           if (selectedPlayers.length > 0 || selectedGraveyard.length != 1) {
             this.handleAlert("请（只）选择一张底牌哦", 'warning')
@@ -607,7 +618,7 @@ Page({
     })
 
     const time = game.inGraveyardNextActionRole.pendingTime
-    updateDatabase(game, this.data.currentRole, time)
+    this.updateDatabase(game, this.data.currentRole, time)
   },
 
 
@@ -786,10 +797,9 @@ Page({
   /**
    * 初始化所有数据
    */
-  onInit: function() {
+  onInit: function(room) {
     this.setData({
-      myOpenId: "",
-      room: {},
+      room: room,
       enableStart: false,
       myRole: "",
       currentRole: "",
@@ -809,6 +819,7 @@ Page({
       results: [],
       winner: "",
     })
+    app.globalData.actioned = false;
   },
   
   delay: function(milSec) {
@@ -857,6 +868,9 @@ Page({
       }
       case "mason": {
         return "守夜人[" + value + "]";
+      }
+      case "tanner": {
+        return "皮匠[" + value + "]";
       }
       case "villager": {
         return "村民[" + value + "]";
