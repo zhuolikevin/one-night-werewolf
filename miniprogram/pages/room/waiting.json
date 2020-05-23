@@ -9,6 +9,11 @@
     "i-avatar": "../../dist/avatar/index",
     "i-modal": "../../dist/modal/index",
     "i-message": "../../dist/message/index",
-    "i-badge": "../../dist/badge/index"
+    "i-badge": "../../dist/badge/index",
+    "i-steps": "../../dist/steps/index",
+    "i-step": "../../dist/step/index",
+    "i-drawer": "../../dist/drawer/index",
+    "i-sticky": "../../dist/sticky/index",
+    "i-sticky-item": "../../dist/sticky-item/index"
   }
 }

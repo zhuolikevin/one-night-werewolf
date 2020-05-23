@@ -40,3 +40,26 @@
   font-weight: 700;
 }
 
+.demo-container{
+	width:60vw;
+	height: 100vh;
+	background:#ffffff;
+  padding-top: 20px;
+}
+
+.step-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1c2438;
+}
+
+.step-item-content {
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 2px;
+  color: #80848f;
+}
+
+
+
+

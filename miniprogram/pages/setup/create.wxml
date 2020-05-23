@@ -83,6 +83,12 @@
     </view>
 </i-panel>
 
+<i-panel title="皮匠 tanner">
+    <view style="padding: 16px">
+        <i-input-number value="{{tanner}}" min="0" max="100" bindchange="handleChangeTanner" maxlength="-1"/>
+    </view>
+</i-panel>
+
 <i-panel title="村民 villager">
     <view style="padding: 16px">
         <i-input-number value="{{villager}}" min="0" max="100" bindchange="handleChangeVillager" maxlength="-1"/>

@@ -22,6 +22,7 @@ Page({
     insomniac: 0,
     drunk: 0,
     mason: 0,
+    tanner: 0,
     villager: 0
   },
 
@@ -166,6 +167,12 @@ Page({
     })
   },
 
+  handleChangeTanner: function (e) {
+    this.setData({
+      tanner: e.detail.value
+    })
+  },
+
   handleChangeVillager: function (e) {
     this.setData({
       villager: e.detail.value
@@ -181,15 +188,14 @@ Page({
 
   calculateTotalRoles: function() {
     const {wereWolf, alphaWolf, minion, mysticWolf, seer, 
-    apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager} = this.data;
+    apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, tanner, villager} = this.data;
     return wereWolf + alphaWolf + minion + mysticWolf + seer + 
       apprenticeSeer + witch + revealer + robber + troublemaker + insomniac + 
-      drunk + mason + villager;
+      drunk + mason + tanner + villager;
   },
 
   calculateWolfRoles: function() {
-    const { wereWolf, alphaWolf, minion, mysticWolf, seer,
-      apprenticeSeer, witch, revealer, robber, troublemaker, insomniac, drunk, mason, villager } = this.data;
+    const { wereWolf, alphaWolf, mysticWolf} = this.data;
     return wereWolf + alphaWolf + mysticWolf;
   },
 

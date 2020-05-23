@@ -6,23 +6,24 @@ const { $Message } = require('../../dist/base/index');
 Page({
 
   /**
-   * 页面的初始数据
+   * 游戏初始化数据
    */
-  data: {
-    me: "",
+  data: { 
+    myOpenId: app.globalData.openid, 
     mySeat: null,
+    myRole: "",
     room: {},
     seats: [],
+    selectedPlayers: [],
+    selectedGraveyard: [],
     status: "waiting",
     enableStart: false,
     isReady: false,
-    role: "role",
-    currentRole: "currentRole",
-    selectedPlayers: [],
-    selectedGraveyard: [],
+    currentRole: "",
     currentStep: "",
     simulated: [],
     actioned: false,
+    showRight: false,
     // 女巫
     round: 0,
     lastSelected: null,
@@ -40,17 +41,12 @@ Page({
    */
   onLoad: function (options) {
 
-    // For test
-    // options.roomId = "da5f6ae65eaa432c001c5f6a564f4e6c"
-    // app.globalData.openid = "oVLcd5DjZZWv_ddtT6ClkYz9S4H0"
-    this.setData({
-      simulated: [],
-      // status: "voting"
-    });
-    // For test
+    if (!app.globalData.openid) {
+      this.handleAlert("出错啦，重新登录一下吧", "error")
+    }
 
     this.setData({
-      me: app.globalData.openid
+      myOpenId: app.globalData.openid
     });
 
     const _this = this;
@@ -65,146 +61,126 @@ Page({
       }
     });
 
-    // watch current room change (e.g other players readiness)
+    // 监听数据库变化
     const watcher = db.collection('rooms').doc(options.roomId).watch({
       onChange: function(snapshot) {
 
-        console.log(snapshot)
-
-        if (snapshot.docs.length == 0) {
+        // 根据数据库更新房间数据
+        if (snapshot.docs.length != 0) {
+          _this.setData({
+            room: snapshot.docs[0],
+            actioned: app.globalData.actioned
+          })
+        } else {
           return
         }
 
-        _this.setData({
-          room: snapshot.docs[0]
-        })
+        if (_this.data.mySeat == null) {
+          _this.calculateSeats(_this.data.room.players, _this.data.room.totalPlayer);
+        }
 
-        // 游戏还没开始
-        if (_this.data.status == "waiting") {
+        // 准备阶段
+        if (_this.data.room.game.status == "waiting") {
+
+          // 刷新房间信息
+          _this.onInit()
+          _this.setData({
+            room: snapshot.docs[0],
+            myOpenId: app.globalData.openid
+          })
+          for (let i = 0; i < _this.data.room.players.length; i++) {
+            if (_this.data.room.players[i].openId == _this.data.myOpenId) {
+              _this.setData({
+                isReady: _this.data.room.players[i].isReady
+              })
+            }
+          }
 
           // （所有人）监听新玩家加入
-          if (snapshot.docs[0].game.status == "waiting") {
-            _this.calculateSeats(snapshot.docs[0].players, snapshot.docs[0].totalPlayer);
-          }
+          _this.calculateSeats(_this.data.room.players, _this.data.room.totalPlayer);
         
-          // （房主）监听准备人数
-          if (app.globalData.openid == _this.data.room._openid) {
-            var players = snapshot.docs[0].players
-            var readyCount = 0
-            for (var i = 0; i < players.length; i++) {
+          // （房主）监听准备人数， 若所有人都准备， 房主可以点击开始游戏
+          if (_this.data.myOpenId == _this.data.room._openid) {
+            var players = _this.data.room.players
+            var readyCount = 0, enableStart = false
+            for (let i = 0; i < players.length; i++) {
               if (players[i].isReady) {
                 readyCount++;
               }
             }
             if (readyCount == _this.data.room.totalPlayer) {
-              _this.setData({
-                enableStart: true
-              });
-            } else {
-              _this.setData({
-                enableStart: false
-              });
+              enableStart = true
             }
-          }
-
-          // （所有人）监听开始游戏
-          if (snapshot.docs[0].game.status == "gaming")        
-          {
-            _this.setData({
-              status: "gaming",
-              role: snapshot.docs[0].game.roleAssignment.playerRoles[_this.data.mySeat].init,
-            });
+            _this.setData ({
+              enableStart: enableStart
+            })
           }
         } 
+        
+        // 游戏阶段
+        if (_this.data.room.game.status == "gaming") {
 
-        // 游戏已经开始
-        var currentGame = snapshot.docs[0].game
-        var currentRole
-        if (currentGame != null) {
-          if (snapshot.docs[0].game.status == "gaming" || snapshot.docs[0].game.status == "voting" || snapshot.docs[0].game.status == "results") {
-            currentRole = currentGame.currentRole
-            if (currentRole == null) {
-              currentRole = currentGame.inGraveyardNextActionRole.role;
-            }
+          var currentGame = _this.data.room.game;
+
+          // （所有人）更新自己的初始角色
+          if (_this.data.myRole == "") {
             _this.setData({
-              role: currentGame.roleAssignment.playerRoles[_this.data.mySeat].init,
-              currentRole: currentRole,
-              status: snapshot.docs[0].game.status,
+              myRole: currentGame.roleAssignment.playerRoles[_this.data.mySeat].init,
             });
           }
-        }
-        
-        if (_this.data.status == "gaming") {
 
-          // （所有人）监听游戏中的其余角色
-          if (currentGame.currentRole != _this.data.role) {
+          // （所有人）更新当前正在行动的角色
+          _this.setData({
+            currentRole: currentGame.currentRole == null ? currentGame.inGraveyardNextActionRole.role : currentGame.currentRole,
+          });
+
+          // （所有人）监听非自己角色行动
+          if (_this.data.currentRole != _this.data.myRole) {
             // 狼人阶段头狼和狼预言家也要睁眼
             _this.updateStep("")
-            if (currentGame.currentRole == "wereWolf") {
-              if (_this.data.role == "alphaWolf" || _this.data.role == "mysticWolf") {
+            if (_this.data.currentRole == "wereWolf") {
+              if (_this.data.myRole == "alphaWolf" || _this.data.myRole == "mysticWolf") {
                 _this.setHint(currentGame)
               }
             }
             // 如果这个角色在墓地里
-            if (currentGame.currentRole == null && snapshot.docs[0].game.status == "gaming") {  
+            if (currentGame.currentRole == null) {  
               _this.simulateAction(currentGame)
             }
-          }
-
-          // （所有人）监听游戏中自己角色
-          if (currentGame.currentRole == _this.data.role) {
-            if (_this.data.role == "alphaWolf" || _this.data.role == "mysticWolf") {
+          // （所有人）监听自己角色行动
+          } else {
+            // 如果之前行动过又退出房间了
+            if (app.globalData.actioned) {
+              _this.updateStep("你已经行动过啦!")
+              _this.updateDatabase(currentGame, _this.data.myRole, 0)
+              return
+            }
+            // 如果是非普通狼人的狼人牌
+            if (_this.data.myRole == "alphaWolf" || _this.data.myRole == "mysticWolf") {
               _this.setData({
                 actioned: false
               })
+              app.globalData.actioned = false
             }
             _this.setHint(currentGame)
-          }   
+          }
         }
 
-        // 监听进入投票环节
-        if (snapshot.docs[0].game.status == "voting") {
+        // 投票阶段
+        if (_this.data.room.game.status == "voting") {
           _this.updateStep("")
-          _this.setData({
-            status: "voting"
-          })
+
           // 如果有被揭示者翻开的牌
-          if (JSON.stringify(snapshot.docs[0].game.revealer) !== '{}') {
-            _this.updateStep("揭示者揭露了" + snapshot.docs[0].game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(snapshot.docs[0].game.revealer.role))
+          if (JSON.stringify(_this.data.room.game.revealer) !== '{}') {
+            _this.updateStep("揭示者揭露了" + _this.data.room.game.revealer.seatNumber + "号当前身份是: " + _this.convertFull(_this.data.room.game.revealer.role))
           }
         }  
 
-        // 投票结束，显示投票结果
-        if (snapshot.docs[0].game.status == "results") {
-            _this.setData({
-              status: "results"
-            })
-            _this.updateStep(snapshot.docs[0].game.winner)
-            _this.showResult(snapshot.docs[0].game)
+        // 显示结果阶段
+        if (_this.data.room.game.status == "results") {
+          _this.updateStep(_this.data.room.game.winner)
+          _this.showResult(_this.data.room.game)
         }
-
-        // 再来一局
-        if (_this.data.status == "results") {
-          console.log(snapshot.docs[0].game.status)
-
-          if (snapshot.docs[0].game.status == "waiting") {
-            _this.onInit()
-          }
-        } 
-
-        // 更新room数据
-        var isReady = false
-        for (var i = 0; i < snapshot.docs[0].players.length; i++) {
-          if (snapshot.docs[0].players[i].seatNumber == _this.data.mySeat) {
-            isReady = snapshot.docs[0].players[i].isReady
-          }
-        }
-        _this.setData({
-          room: snapshot.docs[0],
-          isReady: isReady,
-          status: snapshot.docs[0].game.status
-        });
-
       },
       onError: function(err) {
         console.error('the watch closed because of error', err)
@@ -262,6 +238,15 @@ Page({
   },
 
   /**
+   * 显示右侧弹框
+   */
+  toggleRight() {
+    this.setData({
+      showRight: !this.data.showRight
+    });
+  },
+
+  /**
    * 警告
    */
   handleAlert: function (content, type) {
@@ -306,6 +291,10 @@ Page({
    * 操作提示
    */
   setHint: function(game) {
+
+    if (game.currentRole == null) {
+      return
+    }
 
     var players = game.roleAssignment.playerRoles;
 
@@ -370,10 +359,8 @@ Page({
       case "mason": 
         var mason = ""
         for (var i = 0; i < players.length; i++) {
-          if (i != this.data.mySeat) {
-            if (players[i].init == "mason") {
-              mason += i + "号 ";
-            }
+          if (i != this.data.mySeat && players[i].init == "mason") {
+            mason += i + "号 ";
           }
         }
         if (mason == "") {
@@ -523,9 +510,9 @@ Page({
             game.roleAssignment.graveyardRoles[this.data.lastSelected].current = playerRole
           }
         }
-        var newData = parseInt(this.data.round) + 1
+        var currentRound = parseInt(this.data.round) + 1
         this.setData({
-          round: newData
+          round: currentRound
         });
         break;
       // 揭示者
@@ -589,32 +576,15 @@ Page({
         break;
     }
 
-    if (this.data.role == "witch" && this.data.round == 1) {
-      return
-    } 
-
-    this.setData({
-      actioned: true
-    })
-
-    // TODO: update game in database
-    this.delay(5000).then(
-      res => {
-        var _this = this
-        console.log(game)
-        wx.cloud.callFunction({
-          name: 'takeAction',
-          data: {
-            roomId: _this.data.room._id,
-            game: game,
-            myRole: _this.data.role
-          },
-          success: res => {
-            console.log(res)
-          }
-        })
-      }
-    )
+    if (this.data.myRole == "witch" && this.data.round == 1) {
+      return;
+    } else {
+      this.setData({
+        actioned: true
+      });
+      app.globalData.actioned = true;
+      this.updateDatabase(game, this.data.myRole, 2000);
+    }
 
   },
 
@@ -623,6 +593,7 @@ Page({
    */
   simulateAction: function(game) {
 
+    // 如果已经模拟过则返回
     for (var i = 0; i < this.data.simulated.length; i++) {
       if (this.data.currentRole == this.data.simulated[i]) {
         return
@@ -635,27 +606,32 @@ Page({
       simulated: simulated,
     })
 
-    console.log("[current role]", this.data.currentRole)
-    console.log("[simulated]", this.data.simulated)
-
     const time = game.inGraveyardNextActionRole.pendingTime
-    var _this = this
+    updateDatabase(game, this.data.currentRole, time)
+  },
 
-    _this.delay(time).then(
+
+  /**
+   * 根据操作更新数据库
+   */
+  updateDatabase: function (game, role, time) {
+    var _this = this
+    this.delay(time).then(
       res => {
+        var _this = this
         wx.cloud.callFunction({
           name: 'takeAction',
           data: {
             roomId: _this.data.room._id,
-            game: game
+            game: game,
+            myRole: role
           },
           success: res => {
-            return
+            console.log(res)
           }
         })
       }
     )
-
   },
 
   /**
@@ -667,12 +643,12 @@ Page({
 
     var selectedPlayers = []
     var selectedGraveyard = []
-    for (var i = 0; i < this.data.selectedPlayers.length; i++) {
+    for (let i in this.data.selectedPlayers) {
       if (this.data.selectedPlayers[i]) {
         selectedPlayers.push(i)
       }
     }
-    for (var i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++) {
       if (this.data.selectedGraveyard[i]) {
         selectedGraveyard.push(i)
       }
@@ -681,11 +657,7 @@ Page({
     if (selectedPlayers.length + selectedGraveyard.length != 1) {
       this.handleAlert("请（只）选择一个玩家或一张底牌", 'warning')
     } else {
-      // TODO：发送投票结果
-
       const selectedPlayer = selectedPlayers.length > 0 ? selectedPlayers[0] : -1;
-      // const selectedGraveyardRole = selectedGraveyard.length > 0 ? selectedGraveyard[0] : -1;
-
       wx.cloud.callFunction({
         name: 'vote',
         data: {
@@ -742,8 +714,6 @@ Page({
       winner: game.results.winner
     })
 
-    console.log(this.data.results)
-
   },
 
   /**
@@ -752,15 +722,17 @@ Page({
   calculateSeats: function(players, totalPlayers) {
 
     var rows = Math.ceil(totalPlayers / 3);
-
     var seats = new Array(rows);  
-    for (var i = 0; i < seats.length; i++) {
+    for (let i = 0; i < seats.length; i++) {
       seats[i] = new Array(3);    
     }
 
-    for (var i = 0; i < players.length; i++) {
+    /**
+     * 计算玩家位置
+     */
+    for (let i = 0; i < players.length; i++) {
       var seatNumber = players[i].seatNumber 
-      if (players[i].openId == this.data.me) {
+      if (players[i].openId == this.data.myOpenId) {
         this.setData({
           mySeat: players[i].seatNumber 
         });
@@ -768,21 +740,22 @@ Page({
       seats[Math.floor(seatNumber / 3)][seatNumber % 3] = players[i]
     }
 
-    this.setData({
-      seats: seats,
-    });
-
-    var selectedPlayers = []
-    for (var i = 0; i < totalPlayers; i++) {
+    /**
+     * 初始化选择的玩家和底牌
+     */
+    var selectedPlayers = [], selectedGraveyard = [3]
+    for (let i in totalPlayers) {
       selectedPlayers[i] = false
     }
-
-    var selectedGraveyard = []
-    for (var i = 0; i < 3; i++) {
+    for (let i in selectedGraveyard) {
       selectedGraveyard[i] = false
     }
 
+    /**
+     * 更新数据
+     */
     this.setData({
+      seats: seats,
       selectedPlayers: selectedPlayers,
       selectedGraveyard: selectedGraveyard
     });
@@ -793,7 +766,6 @@ Page({
    * 再来一局
    */
   onRestart: function() {
-
     var roomId = this.data.room._id
     const db = wx.cloud.database();
     const _ = db.command;
@@ -815,26 +787,17 @@ Page({
    * 初始化所有数据
    */
   onInit: function() {
-
-    console.log("Init")
-    var options = {
-      roomId: this.data.room._id
-    }
-
     this.setData({
-      me: "",
-      mySeat: null,
+      myOpenId: "",
       room: {},
-      seats: [],
-      status: "waiting",
       enableStart: false,
-      isReady: false,
-      role: "role",
-      currentRole: "currentRole",
+      myRole: "",
+      currentRole: "",
       selectedPlayers: [],
       selectedGraveyard: [],
       currentStep: "",
       simulated: [],
+      showRight: false,
       actioned: false,
       // 女巫
       round: 0,
@@ -846,8 +809,6 @@ Page({
       results: [],
       winner: "",
     })
-
-    this.onLoad(options)
   },
   
   delay: function(milSec) {
