@@ -12,6 +12,9 @@ exports.main = async (event, context) => {
     richUserInfo,
     userInfo
   } = event;
+
+  console.log("[INPUT PARAMS] :", event);
+
   const { openId } = userInfo;
   const totalPlayer = parseInt(totalPlayerString);
   const roomNumber = generateRoomNumber();
