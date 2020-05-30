@@ -37,13 +37,21 @@
 
 ### 应用实例
 
-游戏登陆界面
+游戏房间等待界面
 
-创建游戏界面
+![screenshot_waiting](docs/resource/snapshot_waiting.jpg)
 
 游戏进行界面
 
+![screenshot_playing](docs/resource/snapshot_playing.jpg)
+
+游戏进程界面
+
+![screenshot_progress](docs/resource/snapshot_progress.jpg)
+
 投票结果界面
+
+![screenshot_result](docs/resource/snapshot_result.jpg)
 
 ## 游戏介绍
 
