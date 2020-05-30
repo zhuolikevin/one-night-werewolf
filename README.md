@@ -35,23 +35,12 @@
 - `takeAction` - 在某一角色行动结束后，或者墓地中角色随机延时后调用，用来计算下一个需要行动的角色。如果当前角色是最后一个角色则进入投票状态。
 - `vote` - 接收玩家投票信息，更新数据库房间记录中的投票统计，当所有角色投票请求都收到后，会根据游戏规则计算胜利阵营。
 
-### 应用实例
+### 游戏界面
 
-游戏房间等待界面
-
-![screenshot_waiting](docs/resource/snapshot_waiting.jpg)
-
-游戏进行界面
-
-![screenshot_playing](docs/resource/snapshot_playing.jpg)
-
-游戏进程界面
-
-![screenshot_progress](docs/resource/snapshot_progress.jpg)
-
-投票结果界面
-
-![screenshot_result](docs/resource/snapshot_result.jpg)
+<img src="./docs/resource/screenshot_waiting.jpg" alt="screenshot_waiting" height="600"/>
+<img src="./docs/resource/screenshot_playing.jpg" alt="screenshot_playing" height="600"/>
+<img src="./docs/resource/screenshot_progress.jpg" alt="screenshot_progress" height="600"/>
+<img src="./docs/resource/screenshot_result.jpg" alt="screenshot_result" height="600"/>
 
 ## 游戏介绍
 
